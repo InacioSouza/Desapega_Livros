@@ -1,5 +1,6 @@
 package br.com.livraria.desapega_livros.repository.entity;
 
+import br.com.livraria.desapega_livros.controllers.form.EditoraFORM;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -17,6 +18,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Editora {
+	public Editora(EditoraFORM editoraForm) {
+		this.nome = editoraForm.nome();
+	}
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;

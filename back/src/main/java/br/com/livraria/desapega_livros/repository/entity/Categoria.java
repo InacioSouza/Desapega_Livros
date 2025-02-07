@@ -2,6 +2,7 @@ package br.com.livraria.desapega_livros.repository.entity;
 
 import java.util.List;
 
+import br.com.livraria.desapega_livros.controllers.form.CategoriaFORM;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -23,6 +24,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Categoria {
+
+	public Categoria(CategoriaFORM categoriaForm) {
+		this.nome = categoriaForm.nome();
+	}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

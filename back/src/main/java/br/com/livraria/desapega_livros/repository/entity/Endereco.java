@@ -26,9 +26,9 @@ import lombok.ToString;
 public class Endereco {
 
 	public Endereco(ViaCepResponseDTO dadosViaCep) {
-		this.cep = dadosViaCep.cep();
-		this.logradouro = dadosViaCep.logradouro();
-		this.bairro = dadosViaCep.bairro();
+		this.cep = dadosViaCep.cep().trim();
+		this.logradouro = dadosViaCep.logradouro().trim();
+		this.bairro = dadosViaCep.bairro().trim();
 	}
 
 	@Id
