@@ -32,6 +32,14 @@ public class Livro {
 
 	private String titulo;
 	private String descricao;
+	
+	@Column(name = "opniao_doador")
+	private String opniaoDoador;
+	
+	@Column(name = "qtd_paginas")
+	private Integer qtdPaginas;
+	
+	private String isbn;
 
 	@Column(name = "data_publicacao")
 	private LocalDate dataPublicacao;

@@ -1,0 +1,14 @@
+ALTER TABLE autor DROP COLUMN sobrenome;
+ALTER TABLE autor DROP COLUMN nacionalidade;
+ALTER TABLE autor DROP COLUMN nome_artistico;
+
+ALTER TABLE livro ADD COLUMN qtd_paginas INT NOT NULL;
+ALTER TABLE livro ADD CONSTRAINT chk_qtd_paginas CHECK (qtd_paginas > 0);
+
+ALTER TABLE livro ADD COLUMN isbn VARCHAR(13);
+ALTER TABLE livro ADD COLUMN opniao_doador VARCHAR(350);
+ALTER TABLE livro ALTER COLUMN data_publicacao DROP NOT NULL;
+ALTER TABLE livro ALTER COLUMN descricao SET DATA TYPE VARCHAR(350);
+
+ALTER TABLE endereco ALTER COLUMN logradouro SET NOT NULL;
+ALTER TABLE endereco ALTER COLUMN bairro SET NOT NULL;

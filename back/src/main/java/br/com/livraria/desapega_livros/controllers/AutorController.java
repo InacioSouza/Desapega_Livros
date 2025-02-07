@@ -26,7 +26,6 @@ public class AutorController {
 
 	@PostMapping
 	public ResponseEntity<?> cadastraAutor(@RequestBody @Valid AutorFORM autorForm) {
-
 		return service.cadastra(autorForm);
 	}
 

@@ -24,7 +24,7 @@ public class AutorService {
 	@Transactional
 	public ResponseEntity<?> cadastra(AutorFORM autorForm) {
 
-		if (autorJaCadastrado(autorForm)) {
+		if (autorRepo.existsByNome(autorForm.nome())) {
 			throw new RegistroEncontradoException("Autor já cadastrado no banco!");
 		}
 
@@ -70,10 +70,6 @@ public class AutorService {
 		autor.atualizarDados(autorForm);
 
 		return ResponseEntity.ok(new AutorDTO(autor));
-	}
-
-	private boolean autorJaCadastrado(AutorFORM autorForm) {
-		return autorRepo.autorCadastrado(autorForm.nome(), autorForm.sobrenome(), autorForm.nacionalidade());
 	}
 
 }

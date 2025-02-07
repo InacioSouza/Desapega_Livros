@@ -5,19 +5,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import br.com.livraria.desapega_livros.repository.entity.Autor;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @Repository
 public interface AutorRepository extends JpaRepository<Autor, Integer> {
 
-	@Query("""
-			SELECT EXISTS (
-				SELECT 1
-				FROM Autor aut
-				WHERE aut.nome = :nome
-				AND aut.sobrenome = :sobrenome
-				AND aut.nacionalidade = :nacionalidade
-			)
-			""")
-	boolean autorCadastrado(String nome, String sobrenome, String nacionalidade);
+	boolean existsByNome(@NotBlank @NotNull String nome);
 
 }
