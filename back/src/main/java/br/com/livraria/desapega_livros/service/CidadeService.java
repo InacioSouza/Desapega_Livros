@@ -1,12 +1,15 @@
 package br.com.livraria.desapega_livros.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.com.livraria.desapega_livros.controllers.dto.CidadeDTO;
 import br.com.livraria.desapega_livros.controllers.form.CidadeFORM;
+import br.com.livraria.desapega_livros.infra.exception.NenhumRegistroEncontradoException;
 import br.com.livraria.desapega_livros.infra.exception.RegistroEncontradoException;
 import br.com.livraria.desapega_livros.infra.exception.RegistroNaoExisteException;
 import br.com.livraria.desapega_livros.repository.CidadeRepository;
@@ -34,12 +37,24 @@ public class CidadeService {
 		}
 
 		Cidade cidade = new Cidade();
-		cidade.setNome(cidadeForm.nome());
+		cidade.setNome(cidadeForm.nome().trim());
 
 		Estado estadoCid = estadoRepo.findById(cidadeForm.idEstado()).get();
 		cidade.setEstado(estadoCid);
 
 		return ResponseEntity.status(HttpStatus.CREATED).body(cidadeRepo.save(cidade));
+	}
+
+	@Transactional
+	public ResponseEntity<?> listar(Pageable pagina) {
+
+		var cidades = cidadeRepo.findAll(pagina).map(CidadeDTO::new);
+
+		if (cidades.getNumberOfElements() == 0) {
+			throw new NenhumRegistroEncontradoException("Não há cidades cadastradas no banco!");
+		}
+
+		return ResponseEntity.ok(cidades);
 	}
 
 }

@@ -8,4 +8,8 @@ import br.com.livraria.desapega_livros.repository.entity.Categoria;
 @Repository
 public interface CategoriaRepository extends JpaRepository<Categoria, Integer> {
 
+	boolean existsByNome(String nome);
+
+	Categoria findByNome(String nome);
+
 }

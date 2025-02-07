@@ -59,23 +59,23 @@ public class EnderecoService {
 				|| !cidadeRepo.existsByNomeIgnoreCase(dadosEndereco.localidade())) {
 
 			cidade = new Cidade();
-			cidade.setNome(dadosEndereco.localidade());
+			cidade.setNome(dadosEndereco.localidade().trim());
 
 			if (!estadoRepo.existsByNomeIgnoreCase(dadosEndereco.localidade())) {
 				estado = new Estado();
-				estado.setNome(dadosEndereco.estado());
-				estado.setUf(dadosEndereco.uf());
+				estado.setNome(dadosEndereco.estado().trim());
+				estado.setUf(dadosEndereco.uf().trim());
 
 				estado = estadoRepo.save(estado);
 			} else {
-				estado = estadoRepo.findByNome(dadosEndereco.estado());
+				estado = estadoRepo.findByNome(dadosEndereco.estado().trim());
 			}
 
 			cidade.setEstado(estado);
 
 			cidade = cidadeRepo.save(cidade);
 		} else {
-			cidade = cidadeRepo.findByNome(dadosEndereco.localidade());
+			cidade = cidadeRepo.findByNome(dadosEndereco.localidade().trim());
 		}
 
 		endereco.setCidade(cidade);
@@ -149,8 +149,8 @@ public class EnderecoService {
 		return ResponseEntity.ok(new EnderecoDTO(endereco));
 	}
 
+	@Transactional
 	public ResponseEntity<?> enderecoPorUsuario(Integer id) {
-
 		if (!usuarioRepo.existsById(id)) {
 			throw new RegistroNaoExisteException("Nenhum usuário encontrado para o id : " + id);
 		}

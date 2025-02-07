@@ -46,6 +46,7 @@ public class EstadoService {
 		return ResponseEntity.ok(pageEstados);
 	}
 
+	@Transactional
 	public ResponseEntity<?> excluir(Integer id) {
 		if (!repository.existsById(id)) {
 			throw new RegistroNaoExisteException("Não existe Estado para o ID: " + id);
