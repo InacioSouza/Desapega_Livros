@@ -1,6 +1,6 @@
 package br.com.livraria.desapega_livros.infra.exception;
 
-public class FalhaNaCominucacaoComAPIException extends Exception {
+public class FalhaNaCominucacaoComAPIException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 

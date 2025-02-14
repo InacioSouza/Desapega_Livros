@@ -1,16 +1,11 @@
 package br.com.livraria.desapega_livros.repository.entity;
 
-import java.util.List;
-
-import br.com.livraria.desapega_livros.controllers.form.CategoriaFORM;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,21 +13,23 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "categoria")
-@Getter
-@Setter
+@Table(name = "livro_autor")
 @NoArgsConstructor
 @AllArgsConstructor
-public class Categoria {
-
-	public Categoria(CategoriaFORM categoriaForm) {
-		this.nome = categoriaForm.nome();
-	}
+@Getter
+@Setter
+public class LivroAutor {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
-	private String nome;
+	@OneToOne
+	@JoinColumn(name = "id_livro")
+	private Livro livro;
+
+	@OneToOne
+	@JoinColumn(name = "id_autor")
+	private Autor autor;
 
 }

@@ -32,4 +32,9 @@ public class TratadorDeErros {
 	public ResponseEntity<?> trataErroCominucacaoAPI(FalhaNaCominucacaoComAPIException ex) {
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
 	}
+
+	@ExceptionHandler(RequisicaoInvalidaException.class)
+	public ResponseEntity<?> trataErroRequisicaoInvalida(RequisicaoInvalidaException ex) {
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+	}
 }

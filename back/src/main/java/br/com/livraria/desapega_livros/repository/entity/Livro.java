@@ -10,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -17,6 +18,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Table(name = "livro")
@@ -24,6 +26,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class Livro {
 
 	@Id
@@ -31,14 +34,15 @@ public class Livro {
 	private Integer id;
 
 	private String titulo;
+	// Adicionar atributo opcional subTitulo;
 	private String descricao;
-	
+
 	@Column(name = "opniao_doador")
 	private String opniaoDoador;
-	
+
 	@Column(name = "qtd_paginas")
 	private Integer qtdPaginas;
-	
+
 	private String isbn;
 
 	@Column(name = "data_publicacao")
@@ -64,9 +68,13 @@ public class Livro {
 	@JoinColumn(name = "id_cidade")
 	private Cidade ciade;
 
-	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "livros")
+	//Por alguma razão que eu não sei o JPA não está  pegando os registros de autor e categoria relacionados a livro do banco de dados
+	@ManyToMany
+	@JoinTable(name = "livro_categoria", joinColumns = @JoinColumn(name = "id_livro"), inverseJoinColumns = @JoinColumn(name = "id_categoria"))
 	private List<Categoria> categorias;
-
-	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "livros")
+	
+	@ManyToMany
+	@JoinTable(name = "livro_autor", joinColumns = @JoinColumn(name = "id_livro"), inverseJoinColumns = @JoinColumn(name = "id_autor"))
 	private List<Autor> autores;
+
 }

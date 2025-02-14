@@ -1,5 +1,6 @@
 package br.com.livraria.desapega_livros.service;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -52,7 +53,7 @@ public class ValidaCepService {
 
 			return viaCepResponse;
 
-		} catch (Exception e) {
+		} catch (IOException | InterruptedException e) {
 			throw new RuntimeException("Ero interno ao se comunicar com webservice ViaCep");
 		}
 

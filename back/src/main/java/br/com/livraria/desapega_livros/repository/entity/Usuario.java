@@ -2,6 +2,7 @@ package br.com.livraria.desapega_livros.repository.entity;
 
 import java.time.LocalDate;
 
+import br.com.livraria.desapega_livros.controllers.form.UsuarioFORM;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -24,6 +25,16 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Usuario {
 
+	public Usuario(UsuarioFORM usuarioForm) {
+		this.nome = usuarioForm.nome();
+		this.sobrenome = usuarioForm.sobrenome();
+		this.dataNascimento = usuarioForm.dataNascimento();
+		this.email = usuarioForm.email();
+		this.whatsapp = usuarioForm.whatsapp();
+		this.senha = usuarioForm.senha();
+
+	}
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
@@ -36,7 +47,7 @@ public class Usuario {
 
 	private String email;
 	private String whatsapp;
-	
+
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "id_endereco")
 	private Endereco endereco;
