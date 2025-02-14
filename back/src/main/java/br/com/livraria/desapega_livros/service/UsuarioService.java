@@ -1,11 +1,12 @@
 package br.com.livraria.desapega_livros.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import br.com.livraria.desapega_livros.controllers.dto.UsuarioDTO;
 import br.com.livraria.desapega_livros.controllers.form.UsuarioFORM;
 import br.com.livraria.desapega_livros.infra.exception.RegistroNaoExisteException;
 import br.com.livraria.desapega_livros.repository.EnderecoRepository;
@@ -21,6 +22,9 @@ public class UsuarioService {
 
 	@Autowired
 	private EnderecoRepository enderecoRepo;
+
+	@Autowired
+	private UriComponentsBuilder uriBulder;
 
 	@Transactional
 	public ResponseEntity<?> cadastrar(UsuarioFORM usuarioForm) {
@@ -39,6 +43,8 @@ public class UsuarioService {
 
 		var usuarioSalvo = usuarioRepo.save(usuario);
 
-		return ResponseEntity.status(HttpStatus.CREATED).body(usuarioSalvo);
+		var uri = uriBulder.path("/usuario/{id}").buildAndExpand(usuarioSalvo.getId()).toUri();
+
+		return ResponseEntity.created(uri).body(new UsuarioDTO(usuarioSalvo));
 	}
 }

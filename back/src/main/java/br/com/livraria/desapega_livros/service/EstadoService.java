@@ -3,11 +3,12 @@ package br.com.livraria.desapega_livros.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import br.com.livraria.desapega_livros.controllers.dto.EstadoDTO;
 import br.com.livraria.desapega_livros.controllers.form.EstadoFORM;
 import br.com.livraria.desapega_livros.infra.exception.NenhumRegistroEncontradoException;
 import br.com.livraria.desapega_livros.infra.exception.RegistroEncontradoException;
@@ -20,6 +21,9 @@ public class EstadoService {
 	@Autowired
 	private EstadoRepository repository;
 
+	@Autowired
+	private UriComponentsBuilder uriBuilder;
+
 	@Transactional
 	public ResponseEntity<?> cadastra(EstadoFORM estadoForm) {
 		if (estadoJaCadastrado(estadoForm.nome())) {
@@ -28,7 +32,9 @@ public class EstadoService {
 
 		Estado estadoSalvo = repository.save(new Estado(estadoForm));
 
-		return ResponseEntity.status(HttpStatus.CREATED).body(estadoSalvo);
+		var uri = uriBuilder.path("/estado/{id}").buildAndExpand(estadoSalvo.getId()).toUri();
+
+		return ResponseEntity.created(uri).body(new EstadoDTO(estadoSalvo));
 	}
 
 	private boolean estadoJaCadastrado(String estado) {

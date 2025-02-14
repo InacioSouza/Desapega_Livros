@@ -5,11 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.livraria.desapega_livros.controllers.dto.LivroDTO;
 import br.com.livraria.desapega_livros.controllers.form.LivroFORM;
@@ -69,11 +69,13 @@ public class LivroService {
 	@Autowired
 	private ISBNService isbnService;
 
+	@Autowired
+	private UriComponentsBuilder uriBuilder;
+
 	@Transactional
 	public ResponseEntity<?> cadastrar(LivroFORM livroForm, MultipartFile capa) {
-		
+
 		System.out.println("\n\n\n Entrei no service!!! \n\n\n");
-		
 
 		if (capa.isEmpty()) {
 			throw new RequisicaoInvalidaException("A capa deve ser passada como arquivo Multipart!");
@@ -139,7 +141,9 @@ public class LivroService {
 
 		var livroDTO = new LivroDTO(livroSalvo);
 
-		return ResponseEntity.status(HttpStatus.CREATED).body(livroDTO);
+		var uri = uriBuilder.path("/livro/{id}").buildAndExpand(livroSalvo.getId()).toUri();
+
+		return ResponseEntity.created(uri).body(livroDTO);
 
 	}
 

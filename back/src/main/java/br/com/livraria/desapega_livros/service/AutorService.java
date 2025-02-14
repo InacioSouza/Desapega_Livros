@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.livraria.desapega_livros.controllers.dto.AutorDTO;
 import br.com.livraria.desapega_livros.controllers.form.AutorFORM;
@@ -21,6 +22,9 @@ public class AutorService {
 	@Autowired
 	private AutorRepository autorRepo;
 
+	@Autowired
+	private UriComponentsBuilder uribuilder;
+
 	@Transactional
 	public ResponseEntity<?> cadastra(AutorFORM autorForm) {
 
@@ -31,7 +35,9 @@ public class AutorService {
 		Autor autor = new Autor(autorForm);
 		AutorDTO autorSalvoDTO = new AutorDTO(autorRepo.save(autor));
 
-		return ResponseEntity.ok(autorSalvoDTO);
+		var uri = uribuilder.path("/autor/{id}").buildAndExpand(autor.getId()).toUri();
+
+		return ResponseEntity.created(uri).body(autorSalvoDTO);
 	}
 
 	@Transactional

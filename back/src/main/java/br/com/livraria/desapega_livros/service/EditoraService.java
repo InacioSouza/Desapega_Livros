@@ -2,10 +2,10 @@ package br.com.livraria.desapega_livros.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.livraria.desapega_livros.controllers.dto.EditoraDTO;
 import br.com.livraria.desapega_livros.controllers.form.EditoraFORM;
@@ -21,6 +21,9 @@ public class EditoraService {
 	@Autowired
 	private EditoraRepository editoraRepo;
 
+	@Autowired
+	private UriComponentsBuilder uriBuilder;
+
 	@Transactional
 	public ResponseEntity<?> cadastrar(EditoraFORM editoraForm) {
 
@@ -31,7 +34,9 @@ public class EditoraService {
 		Editora editora = new Editora(editoraForm);
 		EditoraDTO editoraSalvaDTO = new EditoraDTO(editoraRepo.save(editora));
 
-		return ResponseEntity.status(HttpStatus.CREATED).body(editoraSalvaDTO);
+		var uri = uriBuilder.path("/editora/{id}").buildAndExpand(editora.getId()).toUri();
+
+		return ResponseEntity.created(uri).body(editoraSalvaDTO);
 	}
 
 	@Transactional

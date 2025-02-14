@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.livraria.desapega_livros.controllers.dto.CategoriaDTO;
 import br.com.livraria.desapega_livros.controllers.form.CategoriaFORM;
@@ -21,6 +22,9 @@ public class CategoriaService {
 	@Autowired
 	private CategoriaRepository categoriaRepo;
 
+	@Autowired
+	private UriComponentsBuilder uribuilder;
+
 	@Transactional
 	public ResponseEntity<?> cadastrar(CategoriaFORM categoriaForm) {
 		if (categoriaRepo.existsByNome(categoriaForm.nome())) {
@@ -31,7 +35,9 @@ public class CategoriaService {
 		Categoria categoria = categoriaRepo.save(new Categoria(categoriaForm));
 		CategoriaDTO categoriaSalvaDTO = new CategoriaDTO(categoria);
 
-		return ResponseEntity.status(HttpStatus.CREATED).body(categoriaSalvaDTO);
+		var uri = uribuilder.path("categoria/{id}").buildAndExpand(categoria.getId()).toUri();
+
+		return ResponseEntity.created(uri).body(categoriaSalvaDTO);
 	}
 
 	@Transactional

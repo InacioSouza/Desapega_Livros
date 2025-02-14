@@ -2,10 +2,10 @@ package br.com.livraria.desapega_livros.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.livraria.desapega_livros.controllers.dto.IdiomaDTO;
 import br.com.livraria.desapega_livros.controllers.form.IdiomaFORM;
@@ -20,6 +20,9 @@ public class IdiomaService {
 	@Autowired
 	private IdiomaRepository idiomaRepo;
 
+	@Autowired
+	private UriComponentsBuilder uriBuilder;
+
 	@Transactional
 	public ResponseEntity<?> cadastrar(IdiomaFORM idiomaForm) {
 		if (idiomaRepo.existsByNomeIgnoreCase(idiomaForm.nome())) {
@@ -32,7 +35,9 @@ public class IdiomaService {
 
 		IdiomaDTO idiomaSalvoDTO = new IdiomaDTO(idiomaSalvo);
 
-		return ResponseEntity.status(HttpStatus.CREATED).body(idiomaSalvoDTO);
+		var uri = uriBuilder.path("/idioma/{id}").buildAndExpand(idiomaSalvo.getId()).toUri();
+
+		return ResponseEntity.created(uri).body(idiomaSalvoDTO);
 	}
 
 	@Transactional

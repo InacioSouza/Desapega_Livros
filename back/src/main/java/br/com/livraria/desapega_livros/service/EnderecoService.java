@@ -3,10 +3,10 @@ package br.com.livraria.desapega_livros.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.livraria.desapega_livros.controllers.dto.EnderecoDTO;
 import br.com.livraria.desapega_livros.controllers.dto.ViaCepResponseDTO;
@@ -38,6 +38,9 @@ public class EnderecoService {
 
 	@Autowired
 	private UsuarioRepository usuarioRepo;
+
+	@Autowired
+	private UriComponentsBuilder uriBuilder;
 
 	@Transactional
 	public ResponseEntity<?> cadastra(EnderecoFORM enderecoForm) {
@@ -82,7 +85,9 @@ public class EnderecoService {
 
 		EnderecoDTO enderecoSalvoDTO = new EnderecoDTO(enderecoRepo.save(endereco));
 
-		return ResponseEntity.status(HttpStatus.CREATED).body(enderecoSalvoDTO);
+		var uri = uriBuilder.path("/endereco/{id}").buildAndExpand(endereco.getId()).toUri();
+
+		return ResponseEntity.created(uri).body(enderecoSalvoDTO);
 	}
 
 	private int enderecoJaCadastrado(EnderecoFORM enderecoF) {
