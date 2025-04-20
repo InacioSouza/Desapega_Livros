@@ -6,6 +6,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,9 +22,9 @@ public class ValidaCepService {
 	private final HttpClient httpClient;
 	private final ObjectMapper objectMapper;
 
-	public ValidaCepService() {
-		this.httpClient = HttpClient.newBuilder().build();
-		this.objectMapper = new ObjectMapper();
+	public ValidaCepService(HttpClient httpClient, ObjectMapper objectMapper) {
+		this.httpClient = httpClient;
+		this.objectMapper = objectMapper;
 	}
 
 	public ViaCepResponseDTO cepExistente(String cepForm) {

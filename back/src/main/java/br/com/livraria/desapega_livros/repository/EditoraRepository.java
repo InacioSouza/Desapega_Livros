@@ -12,4 +12,6 @@ public interface EditoraRepository extends JpaRepository<Editora, Integer> {
 
 	boolean existsByNome(String nome);
 
+	Editora findByNome(String editora);
+
 }

@@ -13,4 +13,6 @@ public interface AutorRepository extends JpaRepository<Autor, Integer> {
 
 	boolean existsByNome(@NotBlank @NotNull String nome);
 
+	Autor findByNome(String nome);
+
 }

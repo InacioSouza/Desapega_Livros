@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public record ISBNResponseDTO(String isbn, @JsonProperty("title") String titulo,
 		@JsonProperty("subtitle") String subtitulo, @JsonProperty("synopsis") String descricao,
 		@JsonProperty("authors") List<String> nomesAutores, @JsonProperty("subjects") List<String> nomesCategorias,
-		@JsonProperty("publisher") String editora, Integer anoPublicacao, Integer qtdPaginas) {
+		@JsonProperty("publisher") String editora, @JsonProperty("year") Integer anoPublicacao,
+		@JsonProperty("page_count") Integer qtdPaginas) {
 
 }

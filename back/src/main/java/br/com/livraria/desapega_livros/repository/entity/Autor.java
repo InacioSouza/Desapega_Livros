@@ -32,4 +32,8 @@ public class Autor {
 	public void atualizarDados(AutorFORM autorForm) {
 		this.nome = autorForm.nome();
 	}
+
+	public Autor(String nome) {
+		this.nome = nome;
+	}
 }

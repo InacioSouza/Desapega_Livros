@@ -19,4 +19,10 @@ public interface LivroAutorRepository extends JpaRepository<LivroAutor, Integer>
 			""")
 	boolean existsLivroAutor(Autor autor, Livro livro);
 
+	@Query("""
+			DELETE FROM LivroAutor la
+			WHERE la.livro.id = :idLivro AND la.autor.id = :idAutor
+			""")
+	void removePorIdLivroEIdAutor(Integer idLivro, Integer idAutor);
+
 }

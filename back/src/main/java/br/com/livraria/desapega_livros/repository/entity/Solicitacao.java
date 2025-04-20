@@ -32,6 +32,13 @@ public class Solicitacao {
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "id_usuario")
 	private Usuario usuario;
+	
+	/* ADICIONAR CAMPO dataSolicitacao
+	 * 
+	 * @Column(name = "data_solicitacao")
+	 * private LocalDate dataSolicitacao;
+	 * 
+	 */
 
 	private String status;
 

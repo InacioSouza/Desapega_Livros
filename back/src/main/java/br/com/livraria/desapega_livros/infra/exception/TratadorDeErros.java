@@ -37,4 +37,9 @@ public class TratadorDeErros {
 	public ResponseEntity<?> trataErroRequisicaoInvalida(RequisicaoInvalidaException ex) {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
 	}
+
+	@ExceptionHandler(RecursoIndisponivelException.class)
+	public ResponseEntity<?> trataErroRecursoIndisponivelException(RecursoIndisponivelException ex) {
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+	}
 }

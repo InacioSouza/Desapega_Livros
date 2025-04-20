@@ -1,8 +1,8 @@
 package br.com.livraria.desapega_livros.repository.entity;
 
-import java.time.LocalDate;
 import java.util.List;
 
+import br.com.livraria.desapega_livros.controllers.dto.ISBNResponseDTO;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -29,13 +29,24 @@ import lombok.ToString;
 @ToString
 public class Livro {
 
+	public Livro(ISBNResponseDTO dadosLivro) {
+		this.isbn = dadosLivro.isbn();
+		this.titulo = dadosLivro.titulo();
+		this.subtitulo = dadosLivro.subtitulo();
+		this.descricao = dadosLivro.descricao();
+		this.anoPublicacao = dadosLivro.anoPublicacao();
+		this.qtdPaginas = dadosLivro.qtdPaginas();
+	}
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
 	private String titulo;
-	// Adicionar atributo opcional subTitulo;
+
 	private String descricao;
+
+	private String subtitulo;
 
 	@Column(name = "opniao_doador")
 	private String opniaoDoador;
@@ -45,8 +56,8 @@ public class Livro {
 
 	private String isbn;
 
-	@Column(name = "data_publicacao")
-	private LocalDate dataPublicacao;
+	@Column(name = "ano_publicacao")
+	private Integer anoPublicacao;
 
 	private byte[] capa;
 
@@ -66,13 +77,12 @@ public class Livro {
 
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "id_cidade")
-	private Cidade ciade;
+	private Cidade cidade;
 
-	//Por alguma razão que eu não sei o JPA não está  pegando os registros de autor e categoria relacionados a livro do banco de dados
 	@ManyToMany
 	@JoinTable(name = "livro_categoria", joinColumns = @JoinColumn(name = "id_livro"), inverseJoinColumns = @JoinColumn(name = "id_categoria"))
 	private List<Categoria> categorias;
-	
+
 	@ManyToMany
 	@JoinTable(name = "livro_autor", joinColumns = @JoinColumn(name = "id_livro"), inverseJoinColumns = @JoinColumn(name = "id_autor"))
 	private List<Autor> autores;

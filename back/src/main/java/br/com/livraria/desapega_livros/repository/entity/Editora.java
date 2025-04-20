@@ -22,6 +22,10 @@ public class Editora {
 		this.nome = editoraForm.nome();
 	}
 
+	public Editora(String nome) {
+		this.nome = nome;
+	}
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;

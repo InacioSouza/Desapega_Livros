@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository;
 import br.com.livraria.desapega_livros.repository.entity.Autor;
 import br.com.livraria.desapega_livros.repository.entity.Categoria;
 import br.com.livraria.desapega_livros.repository.entity.Livro;
+import br.com.livraria.desapega_livros.repository.entity.enuns.StatusLivro;
+import jakarta.validation.constraints.NotNull;
 
 @Repository
 public interface LivroRepository extends JpaRepository<Livro, Integer> {
@@ -45,5 +47,12 @@ public interface LivroRepository extends JpaRepository<Livro, Integer> {
 			)
 			""")
 	List<Autor> autoresPorIdLivro(Integer id);
+
+	@Query("""
+			SELECT l.status
+			FROM Livro l
+			WHERE l.id = :id
+			""")
+	StatusLivro statusLivro(@NotNull Integer id);
 
 }
