@@ -12,11 +12,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class criadorDeObjetos {
 
 	@Bean
-	public UriComponentsBuilder beanUriComponentsBuilder() {
-		return UriComponentsBuilder.newInstance();
-	}
-
-	@Bean
 	public ObjectMapper beanObjectMapper() {
 		return new ObjectMapper();
 	}

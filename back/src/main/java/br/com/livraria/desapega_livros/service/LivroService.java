@@ -77,9 +77,6 @@ public class LivroService {
 	@Autowired
 	private ISBNService isbnService;
 
-	@Autowired
-	private UriComponentsBuilder uriBuilder;
-
 	@Transactional
 	public ResponseEntity<?> cadastrar(LivroFORM livroForm, MultipartFile capa) {
 
@@ -156,6 +153,7 @@ public class LivroService {
 
 		var livroDTO = new LivroDTO(livroSalvo);
 
+		UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
 		var uri = uriBuilder.path("/livro/{id}").buildAndExpand(livroSalvo.getId()).toUri();
 
 		return ResponseEntity.created(uri).body(livroDTO);
@@ -308,6 +306,7 @@ public class LivroService {
 
 		LivroDTO livroSalvoDTO = new LivroDTO(livroSalvo);
 
+		UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
 		var uri = uriBuilder.path("/livro/{id}").buildAndExpand(livroSalvo.getId()).toUri();
 
 		return ResponseEntity.created(uri).body(livroSalvoDTO);

@@ -21,9 +21,6 @@ public class EstadoService {
 	@Autowired
 	private EstadoRepository repository;
 
-	@Autowired
-	private UriComponentsBuilder uriBuilder;
-
 	@Transactional
 	public ResponseEntity<?> cadastra(EstadoFORM estadoForm) {
 		if (estadoJaCadastrado(estadoForm.nome())) {
@@ -32,7 +29,10 @@ public class EstadoService {
 
 		Estado estadoSalvo = repository.save(new Estado(estadoForm));
 
-		var uri = uriBuilder.path("/estado/{id}").buildAndExpand(estadoSalvo.getId()).toUri();
+		var id = estadoSalvo.getId();
+
+		UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
+		var uri = uriBuilder.path("/estado/{id}").buildAndExpand(id).toUri();
 
 		return ResponseEntity.created(uri).body(new EstadoDTO(estadoSalvo));
 	}

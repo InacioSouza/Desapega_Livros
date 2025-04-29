@@ -22,9 +22,6 @@ public class AutorService {
 	@Autowired
 	private AutorRepository autorRepo;
 
-	@Autowired
-	private UriComponentsBuilder uribuilder;
-
 	@Transactional
 	public ResponseEntity<?> cadastra(AutorFORM autorForm) {
 
@@ -34,6 +31,8 @@ public class AutorService {
 
 		Autor autor = new Autor(autorForm);
 		AutorDTO autorSalvoDTO = new AutorDTO(autorRepo.save(autor));
+
+		UriComponentsBuilder uribuilder = UriComponentsBuilder.newInstance();
 
 		var uri = uribuilder.path("/autor/{id}").buildAndExpand(autor.getId()).toUri();
 

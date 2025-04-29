@@ -42,4 +42,9 @@ public class TratadorDeErros {
 	public ResponseEntity<?> trataErroRecursoIndisponivelException(RecursoIndisponivelException ex) {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
 	}
+
+	@ExceptionHandler(NaoAtendeValidacaoException.class)
+	public ResponseEntity<?> trataErroNaoAtendeValidacaoException(NaoAtendeValidacaoException ex) {
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+	}
 }

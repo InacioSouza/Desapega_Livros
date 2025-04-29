@@ -21,9 +21,6 @@ public class EditoraService {
 	@Autowired
 	private EditoraRepository editoraRepo;
 
-	@Autowired
-	private UriComponentsBuilder uriBuilder;
-
 	@Transactional
 	public ResponseEntity<?> cadastrar(EditoraFORM editoraForm) {
 
@@ -34,7 +31,8 @@ public class EditoraService {
 		Editora editora = new Editora(editoraForm);
 		EditoraDTO editoraSalvaDTO = new EditoraDTO(editoraRepo.save(editora));
 
-		var uri = uriBuilder.path("/editora/{id}").buildAndExpand(editora.getId()).toUri();
+		UriComponentsBuilder uribuilder = UriComponentsBuilder.newInstance();
+		var uri = uribuilder.path("/editora/{id}").buildAndExpand(editora.getId()).toUri();
 
 		return ResponseEntity.created(uri).body(editoraSalvaDTO);
 	}

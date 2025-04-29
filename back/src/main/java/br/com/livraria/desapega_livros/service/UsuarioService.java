@@ -23,9 +23,6 @@ public class UsuarioService {
 	@Autowired
 	private EnderecoRepository enderecoRepo;
 
-	@Autowired
-	private UriComponentsBuilder uriBulder;
-
 	@Transactional
 	public ResponseEntity<?> cadastrar(UsuarioFORM usuarioForm) {
 
@@ -43,7 +40,8 @@ public class UsuarioService {
 
 		var usuarioSalvo = usuarioRepo.save(usuario);
 
-		var uri = uriBulder.path("/usuario/{id}").buildAndExpand(usuarioSalvo.getId()).toUri();
+		UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
+		var uri = uriBuilder.path("/usuario/{id}").buildAndExpand(usuarioSalvo.getId()).toUri();
 
 		return ResponseEntity.created(uri).body(new UsuarioDTO(usuarioSalvo));
 	}

@@ -20,9 +20,6 @@ public class IdiomaService {
 	@Autowired
 	private IdiomaRepository idiomaRepo;
 
-	@Autowired
-	private UriComponentsBuilder uriBuilder;
-
 	@Transactional
 	public ResponseEntity<?> cadastrar(IdiomaFORM idiomaForm) {
 		if (idiomaRepo.existsByNomeIgnoreCase(idiomaForm.nome())) {
@@ -35,6 +32,7 @@ public class IdiomaService {
 
 		IdiomaDTO idiomaSalvoDTO = new IdiomaDTO(idiomaSalvo);
 
+		UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
 		var uri = uriBuilder.path("/idioma/{id}").buildAndExpand(idiomaSalvo.getId()).toUri();
 
 		return ResponseEntity.created(uri).body(idiomaSalvoDTO);

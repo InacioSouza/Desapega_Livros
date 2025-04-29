@@ -1,17 +1,13 @@
 package br.com.livraria.desapega_livros.repository.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import br.com.livraria.desapega_livros.repository.entity.enuns.StatusSolicitacao;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "solicitacoes")
@@ -32,14 +28,11 @@ public class Solicitacao {
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "id_usuario")
 	private Usuario usuario;
-	
-	/* ADICIONAR CAMPO dataSolicitacao
-	 * 
-	 * @Column(name = "data_solicitacao")
-	 * private LocalDate dataSolicitacao;
-	 * 
-	 */
 
-	private String status;
+	@Column(name = "data_solicitacao")
+	private LocalDate dataSolicitacao;
+
+	@Enumerated(EnumType.STRING)
+	private StatusSolicitacao status;
 
 }

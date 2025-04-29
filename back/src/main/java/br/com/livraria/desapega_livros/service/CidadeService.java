@@ -26,9 +26,6 @@ public class CidadeService {
 	@Autowired
 	private CidadeRepository cidadeRepo;
 
-	@Autowired
-	private UriComponentsBuilder uribuilder;
-
 	@Transactional
 	public ResponseEntity<?> cadastra(CidadeFORM cidadeForm) {
 		if (cidadeRepo.existsByNomeIgnoreCase(cidadeForm.nome())) {
@@ -47,6 +44,7 @@ public class CidadeService {
 
 		cidade = cidadeRepo.save(cidade);
 
+		UriComponentsBuilder uribuilder = UriComponentsBuilder.newInstance();
 		var uri = uribuilder.path("/cidade/{id}").buildAndExpand(cidade.getId()).toUri();
 
 		return ResponseEntity.created(uri).body(new CidadeDTO(cidade));

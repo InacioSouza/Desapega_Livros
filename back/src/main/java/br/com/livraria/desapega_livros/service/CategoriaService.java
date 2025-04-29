@@ -22,9 +22,6 @@ public class CategoriaService {
 	@Autowired
 	private CategoriaRepository categoriaRepo;
 
-	@Autowired
-	private UriComponentsBuilder uribuilder;
-
 	@Transactional
 	public ResponseEntity<?> cadastrar(CategoriaFORM categoriaForm) {
 		if (categoriaRepo.existsByNome(categoriaForm.nome())) {
@@ -35,7 +32,8 @@ public class CategoriaService {
 		Categoria categoria = categoriaRepo.save(new Categoria(categoriaForm));
 		CategoriaDTO categoriaSalvaDTO = new CategoriaDTO(categoria);
 
-		var uri = uribuilder.path("categoria/{id}").buildAndExpand(categoria.getId()).toUri();
+		UriComponentsBuilder uribuilder = UriComponentsBuilder.newInstance();
+		var uri = uribuilder.path("/categoria/{id}").buildAndExpand(categoria.getId()).toUri();
 
 		return ResponseEntity.created(uri).body(categoriaSalvaDTO);
 	}
