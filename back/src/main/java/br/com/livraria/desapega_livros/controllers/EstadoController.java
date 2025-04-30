@@ -17,7 +17,8 @@ import br.com.livraria.desapega_livros.service.EstadoService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/estado")
+@RequestMapping("/" +
+		"")
 public class EstadoController {
 
 	@Autowired

@@ -50,8 +50,8 @@ public class LivroController {
 		return service.remover(id);
 	}
 
-	@PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, name = "/{id}")
-	public ResponseEntity<?> atualizar(@PathVariable Integer id, @RequestPart("infos") LivroFORM livroForm,
+	@PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, path = "/{id}")
+	public ResponseEntity<?> atualizar(@PathVariable("id") Integer id, @RequestPart("infos") LivroFORM livroForm,
 			@RequestPart("capa") MultipartFile capa) {
 		return service.atualizar(id, livroForm, capa);
 	}

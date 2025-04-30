@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -379,7 +380,7 @@ public class LivroService {
 		Livro livro = livroRepo.findById(id).get();
 		livro.setStatus(StatusLivro.REMOVIDO.toString());
 
-		return ResponseEntity.ok(livro);
+		return ResponseEntity.ok(new LivroDTO(livro));
 	}
 
 	@Transactional
@@ -420,6 +421,10 @@ public class LivroService {
 		livro.setOpniaoDoador(livroForm.opniaoDoador());
 		livro.setIsbn(isbnService.formataISBN(livroForm.isbn()));
 
+		if(!Objects.isNull(livroForm.status())){
+			livro.setStatus(livroForm.status());
+		}
+
 		Cidade cidade;
 
 		if (livroForm.idCidade() == null) {
@@ -441,10 +446,9 @@ public class LivroService {
 		LivroDTO livroAtualizadoDTO = new LivroDTO(livro);
 
 		return ResponseEntity.ok(livroAtualizadoDTO);
-
 	}
 
-	private void removeLivroCategoriaAntigo(Integer idLivro, @NotNull List<Integer> idNovascategorias,
+	private void removeLivroCategoriaAntigo(Integer idLivro, List<Integer> idNovascategorias,
 			List<Categoria> categoriasAntesDeAtualizar) {
 
 		List<Integer> idCategoriasAntes = categoriasAntesDeAtualizar.stream().map(categoria -> categoria.getId())
@@ -464,9 +468,9 @@ public class LivroService {
 	}
 
 	private void removeLivroAutorAntigo(Integer idLivro, List<Integer> idNovosAutores,
-			List<Autor> autoresAnteDeAtualizar) {
+			List<Autor> autoresAntesDeAtualizar) {
 
-		List<Integer> idAutoresAntes = (List<Integer>) autoresAnteDeAtualizar.stream().map(autor -> autor.getId())
+		List<Integer> idAutoresAntes = (List<Integer>) autoresAntesDeAtualizar.stream().map(autor -> autor.getId())
 				.collect(Collectors.toList());
 
 		List<Integer> idAutoresParaRemocao = new ArrayList<Integer>();

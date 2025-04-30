@@ -1,6 +1,7 @@
 package br.com.livraria.desapega_livros.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import br.com.livraria.desapega_livros.repository.entity.Categoria;
@@ -19,6 +20,7 @@ public interface LivroCategoriaRepository extends JpaRepository<LivroCategoria, 
 			""")
 	boolean existsLivroCategoria(Livro livro, Categoria categoria);
 
+	@Modifying
 	@Query("""
 			DELETE FROM LivroCategoria lc
 			WHERE lc.livro.id = :idLivro AND lc.categoria.id = :idCategoria
