@@ -3,6 +3,7 @@ package br.com.livraria.desapega_livros.service;
 import java.time.LocalDate;
 import java.time.YearMonth;
 
+import br.com.livraria.desapega_livros.controllers.dto.SolicitacaoDTO;
 import br.com.livraria.desapega_livros.infra.exception.NaoAtendeValidacaoException;
 import br.com.livraria.desapega_livros.repository.entity.Livro;
 import br.com.livraria.desapega_livros.repository.entity.Solicitacao;
@@ -35,7 +36,7 @@ public class SolicitacaoService {
 	private LivroRepository livroRepo;
 
 	@Transactional
-	public ResponseEntity<?> cadastrar(@Valid SolicitacaoFORM solicitacaoForm) {
+	public ResponseEntity<?> cadastrar(SolicitacaoFORM solicitacaoForm) {
 
 		if (!usuarioRepo.existsById(solicitacaoForm.idSolicitante())) {
 			throw new RequisicaoInvalidaException(
@@ -50,7 +51,7 @@ public class SolicitacaoService {
 			throw new RecursoIndisponivelException("O livro solicitado não está disponível!");
 		}
 
-		if(solicitacaoMesPorUsuario(solicitacaoForm.idSolicitante()) >= 2) {
+		if(qtdSolicitacaoMesPorUsuario(solicitacaoForm.idSolicitante()) >= 2) {
 			throw new NaoAtendeValidacaoException("O usuário atingiu a quantidade máxima de solicitações no mês");
 		}
 
@@ -64,8 +65,13 @@ public class SolicitacaoService {
 		solicitacao.setLivro(livroSolicitado);
 		solicitacao.setUsuario(usuarioRepo.findById(solicitacaoForm.idSolicitante()).get());
 		solicitacao.setStatus(StatusSolicitacao.AGUARDANDO_APROVACAO);
+		solicitacao.setDataSolicitacao(LocalDate.now());
 
-		return ResponseEntity.ok(solicitacaoRepo.save(solicitacao));
+		livroSolicitado.setStatus(StatusLivro.SOLICITADO.toString());
+
+		SolicitacaoDTO solicitacaoSalvaDTO = new SolicitacaoDTO(solicitacaoRepo.save(solicitacao));
+
+		return ResponseEntity.ok(solicitacaoSalvaDTO);
 	}
 
 	@Transactional
@@ -105,8 +111,8 @@ public class SolicitacaoService {
 	}
 
 	//Preciso criar um mecanismo para mudar o status da solicitacao para CANCELADA caso a aprovação demore 30 dias
-
-	private Integer solicitacaoMesPorUsuario(Integer idUsuario) {
+	/* Fazer isso com: @EnableScheduling e @Scheduled()*/
+	private Integer qtdSolicitacaoMesPorUsuario(Integer idUsuario) {
 		YearMonth mesAtual = YearMonth.now();
 
 		LocalDate primeiroDiaMes = mesAtual.atDay(1);
