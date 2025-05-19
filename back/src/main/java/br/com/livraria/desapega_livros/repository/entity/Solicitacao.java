@@ -11,6 +11,10 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "solicitacoes")
+@NamedQuery(
+		name = "solicitacoes.status",
+		query = "SELECT s FROM Solicitacao s WHERE s.status = :statusSolicitacao"
+)
 @Getter
 @Setter
 @NoArgsConstructor

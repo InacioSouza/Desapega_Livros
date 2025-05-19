@@ -45,4 +45,32 @@ public class UsuarioService {
 
 		return ResponseEntity.created(uri).body(new UsuarioDTO(usuarioSalvo));
 	}
+
+	@Transactional
+	public ResponseEntity<?> suspender(Integer idUsuario){
+
+		if(!usuarioRepo.existsById(idUsuario)){
+			throw new RegistroNaoExisteException("Não existe usuário cadastrado para o id : " + idUsuario);
+		}
+
+		Usuario usuario = usuarioRepo.findById(idUsuario).get();
+
+		usuario.setStatus(StatusUsuario.SUSPENSO.toString());
+
+		return ResponseEntity.ok(new UsuarioDTO(usuarioRepo.save(usuario)));
+	}
+
+	@Transactional
+	public ResponseEntity<?> inativar(Integer idUsuario){
+
+		if(!usuarioRepo.existsById(idUsuario)){
+			throw new RegistroNaoExisteException("Não existe usuário para o id : " + idUsuario);
+		}
+
+		Usuario usuario = usuarioRepo.findById(idUsuario).get();
+
+		usuario.setStatus(StatusUsuario.INATIVO.toString());
+
+		return ResponseEntity.ok(new UsuarioDTO(usuarioRepo.save(usuario)));
+	}
 }

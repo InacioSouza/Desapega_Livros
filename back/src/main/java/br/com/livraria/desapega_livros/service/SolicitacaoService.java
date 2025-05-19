@@ -2,15 +2,22 @@ package br.com.livraria.desapega_livros.service;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 import br.com.livraria.desapega_livros.controllers.dto.SolicitacaoDTO;
 import br.com.livraria.desapega_livros.infra.exception.NaoAtendeValidacaoException;
 import br.com.livraria.desapega_livros.repository.entity.Livro;
 import br.com.livraria.desapega_livros.repository.entity.Solicitacao;
 import br.com.livraria.desapega_livros.repository.entity.enuns.StatusSolicitacao;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +41,9 @@ public class SolicitacaoService {
 
 	@Autowired
 	private LivroRepository livroRepo;
+
+	@PersistenceContext
+	private EntityManager em;
 
 	@Transactional
 	public ResponseEntity<?> cadastrar(SolicitacaoFORM solicitacaoForm) {
@@ -75,7 +85,7 @@ public class SolicitacaoService {
 	}
 
 	@Transactional
-	private ResponseEntity<?> cancelarSolicitacao(Integer idSolicitacao) {
+	public ResponseEntity<?> cancelarSolicitacao(Integer idSolicitacao) {
 		if(!solicitacaoRepo.existsById(idSolicitacao)) {
 			throw  new RequisicaoInvalidaException("Não existe solicitação cadastrada para o id: " + idSolicitacao);
 		}
@@ -87,7 +97,7 @@ public class SolicitacaoService {
 	}
 
 	@Transactional
-	private ResponseEntity<?> negarSolicitacao(Integer idSolicitacao) {
+	public ResponseEntity<?> negarSolicitacao(Integer idSolicitacao) {
 		if(!solicitacaoRepo.existsById(idSolicitacao)) {
 			throw  new RequisicaoInvalidaException("Não existe solicitação cadastrada para o id: " + idSolicitacao);
 		}
@@ -99,7 +109,7 @@ public class SolicitacaoService {
 	}
 
 	@Transactional
-	private ResponseEntity<?> aprovarSolicitacao(Integer idSolicitacao) {
+	public ResponseEntity<?> aprovarSolicitacao(Integer idSolicitacao) {
 		if(!solicitacaoRepo.existsById(idSolicitacao)) {
 			throw  new RequisicaoInvalidaException("Não existe solicitação cadastrada para o id: " + idSolicitacao);
 		}
@@ -110,8 +120,6 @@ public class SolicitacaoService {
 		return ResponseEntity.status(HttpStatus.OK).body(solicitacaoRepo.save(solicitacao));
 	}
 
-	//Preciso criar um mecanismo para mudar o status da solicitacao para CANCELADA caso a aprovação demore 30 dias
-	/* Fazer isso com: @EnableScheduling e @Scheduled()*/
 	private Integer qtdSolicitacaoMesPorUsuario(Integer idUsuario) {
 		YearMonth mesAtual = YearMonth.now();
 
@@ -123,4 +131,32 @@ public class SolicitacaoService {
 		return solicitacoesMes;
 	}
 
+	private void verificaTempoDaSolicitacao(){
+
+	}
+
+	@Scheduled(fixedDelay = 172800000) // 48h
+	@Transactional
+	public void alteraStatusDaSolicitacaoPorTempoDeEspera(){
+		TypedQuery<Solicitacao> querySolicitacoes = em.createNamedQuery("solicitacoes.status", Solicitacao.class);
+		querySolicitacoes.setParameter("statusSolicitacao", StatusSolicitacao.AGUARDANDO_APROVACAO);
+
+		List<Solicitacao> solicitacoesEmAguardo = querySolicitacoes.getResultList();
+
+		List<Solicitacao> solicitacoesExpiradas = new ArrayList<>();
+
+		solicitacoesEmAguardo.forEach(solicitacao -> {
+
+			long dias = ChronoUnit.DAYS.between(solicitacao.getDataSolicitacao(), LocalDate.now());
+
+			if(dias > 30){
+				solicitacao.setStatus(StatusSolicitacao.EXPIRADA);
+				solicitacoesExpiradas.add(solicitacao);
+			}
+		});
+
+		solicitacoesExpiradas.forEach(solicitacaoExpirada -> {
+			solicitacaoRepo.save(solicitacaoExpirada);
+		});
+	}
 }

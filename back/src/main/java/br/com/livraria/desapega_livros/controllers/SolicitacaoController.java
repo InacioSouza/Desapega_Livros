@@ -2,10 +2,7 @@ package br.com.livraria.desapega_livros.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import br.com.livraria.desapega_livros.controllers.form.SolicitacaoFORM;
 import br.com.livraria.desapega_livros.service.SolicitacaoService;
@@ -23,4 +20,18 @@ public class SolicitacaoController {
 		return service.cadastrar(solicitacaoForm);
 	}
 
+	@PutMapping("/cancelar/{id}")
+	public ResponseEntity<?> cancelar(@PathVariable("id") Integer idSolicitacao){
+		return service.cancelarSolicitacao(idSolicitacao);
+	}
+
+	@PutMapping("/negar/{id}")
+	public ResponseEntity<?> negar(@PathVariable("id") Integer idSolicitacao){
+		return service.negarSolicitacao(idSolicitacao);
+	}
+
+	@PutMapping("/aprovar/{id}")
+	public ResponseEntity<?> aprovar(@PathVariable("id") Integer idSolicitacao){
+		return service.aprovarSolicitacao(idSolicitacao);
+	}
 }
