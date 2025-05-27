@@ -1,21 +1,19 @@
 package br.com.livraria.desapega_livros.repository.entity;
 
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.List;
 
 import br.com.livraria.desapega_livros.controllers.form.UsuarioFORM;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import br.com.livraria.desapega_livros.repository.entity.enuns.CategoriaEmum;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Table(name = "usuario")
@@ -23,7 +21,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Usuario {
+public class Usuario implements UserDetails {
 
 	public Usuario(UsuarioFORM usuarioForm) {
 		this.nome = usuarioForm.nome();
@@ -32,7 +30,6 @@ public class Usuario {
 		this.email = usuarioForm.email();
 		this.whatsapp = usuarioForm.whatsapp();
 		this.senha = usuarioForm.senha();
-
 	}
 
 	@Id
@@ -53,6 +50,32 @@ public class Usuario {
 	private Endereco endereco;
 
 	private String senha;
+
 	private int advertencias;
+
 	private String status;
+
+	@Enumerated(value = EnumType.STRING)
+	private CategoriaEmum categoria;
+
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+
+		if(this.categoria == CategoriaEmum.ADM){
+			return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"),
+					new SimpleGrantedAuthority("ROLE_USER"));
+		}
+
+		return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+	}
+
+	@Override
+	public String getPassword() {
+		return this.senha;
+	}
+
+	@Override
+	public String getUsername() {
+		return this.email;
+	}
 }

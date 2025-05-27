@@ -1,0 +1,2 @@
+ALTER TABLE usuario
+ADD COLUMN categoria VARCHAR(200);

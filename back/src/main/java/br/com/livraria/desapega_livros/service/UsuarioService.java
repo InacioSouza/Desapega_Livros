@@ -2,6 +2,7 @@ package br.com.livraria.desapega_livros.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -23,6 +24,9 @@ public class UsuarioService {
 	@Autowired
 	private EnderecoRepository enderecoRepo;
 
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
 	@Transactional
 	public ResponseEntity<?> cadastrar(UsuarioFORM usuarioForm) {
 
@@ -37,6 +41,7 @@ public class UsuarioService {
 
 		usuario.setEndereco(endereco);
 		usuario.setStatus(StatusUsuario.ATIVO.toString());
+		usuario.setSenha(passwordEncoder.encode(usuarioForm.senha()));
 
 		var usuarioSalvo = usuarioRepo.save(usuario);
 

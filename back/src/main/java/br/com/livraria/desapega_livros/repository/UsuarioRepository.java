@@ -2,6 +2,7 @@ package br.com.livraria.desapega_livros.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
 
 import br.com.livraria.desapega_livros.repository.entity.Endereco;
@@ -16,5 +17,9 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 			WHERE u.id = :id
 			""")
 	Endereco getEnderecoUsuario(Integer id);
+
+	boolean existsByEmail(String email);
+
+	UserDetails findByEmail(String email);
 
 }
