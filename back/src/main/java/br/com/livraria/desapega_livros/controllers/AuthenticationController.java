@@ -1,7 +1,7 @@
 package br.com.livraria.desapega_livros.controllers;
 
 import br.com.livraria.desapega_livros.controllers.dto.TokenDTO;
-import br.com.livraria.desapega_livros.controllers.form.LoginDTO;
+import br.com.livraria.desapega_livros.controllers.form.LoginFORM;
 import br.com.livraria.desapega_livros.repository.entity.Usuario;
 import br.com.livraria.desapega_livros.service.TokenService;
 import jakarta.validation.Valid;
@@ -25,7 +25,7 @@ public class AuthenticationController {
     private TokenService tokenService;
 
     @PostMapping("/auth")
-    public ResponseEntity<?> login( @Valid @RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<?> login( @Valid @RequestBody LoginFORM loginDTO) {
 
         var auth = new UsernamePasswordAuthenticationToken(loginDTO.login(), loginDTO.senha());
 
