@@ -1,9 +1,10 @@
-package br.com.livraria.desapega_livros.controllers;
+package br.com.livraria.desapega_livros.controllers.publics;
 
 import br.com.livraria.desapega_livros.controllers.dto.TokenDTO;
 import br.com.livraria.desapega_livros.controllers.form.LoginFORM;
 import br.com.livraria.desapega_livros.entities.Usuario;
 import br.com.livraria.desapega_livros.services.TokenService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/login")
-public class AuthenticationController {
+@RequestMapping(PrefixEndpoint.PREFIX_PUBLIC + "/public")
+@Tag(name = "Public")
+public class LoginController {
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -24,7 +26,7 @@ public class AuthenticationController {
     @Autowired
     private TokenService tokenService;
 
-    @PostMapping("/auth")
+    @PostMapping("/login")
     public ResponseEntity<?> login( @Valid @RequestBody LoginFORM loginDTO) {
 
         var auth = new UsernamePasswordAuthenticationToken(loginDTO.login(), loginDTO.senha());

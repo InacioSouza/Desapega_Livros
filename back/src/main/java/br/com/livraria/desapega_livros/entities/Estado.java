@@ -26,6 +26,11 @@ public class Estado {
 		this.uf = estadoForm.uf().toUpperCase();
 	}
 
+	public Estado(String nome, String uf) {
+		this.nome = nome;
+		this.uf = uf;
+	}
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;

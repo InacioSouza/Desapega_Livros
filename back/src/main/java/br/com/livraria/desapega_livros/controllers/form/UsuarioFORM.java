@@ -1,14 +1,31 @@
 package br.com.livraria.desapega_livros.controllers.form;
 
+import jakarta.validation.constraints.*;
+
 import java.time.LocalDate;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PastOrPresent;
+public record UsuarioFORM(
+		@NotBlank
+		String nome,
 
-public record UsuarioFORM(@NotBlank String nome, @NotBlank String sobrenome,
-		@PastOrPresent(message = "A data de nascimento do usuário não pode ser no futuro!") LocalDate dataNascimento,
-		@NotBlank @Email String email, @NotBlank String whatsapp, @NotNull Integer idEndereco, @NotNull String senha) {
+		@NotBlank
+		String sobrenome,
 
-}
+		@PastOrPresent(message = "A data de nascimento do usuário não pode ser no futuro!")
+		LocalDate dataNascimento,
+
+		@NotBlank
+		@Email
+		String email,
+
+		String whatsapp,
+
+		Integer idEndereco,
+
+		@NotNull
+		@Min(6)
+		String senha,
+
+		EnderecoFORM endereco
+
+) {}

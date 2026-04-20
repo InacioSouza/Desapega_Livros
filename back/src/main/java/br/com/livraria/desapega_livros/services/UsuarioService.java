@@ -1,19 +1,16 @@
 package br.com.livraria.desapega_livros.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import br.com.livraria.desapega_livros.controllers.dto.UsuarioDTO;
 import br.com.livraria.desapega_livros.controllers.form.UsuarioFORM;
+import br.com.livraria.desapega_livros.entities.Endereco;
+import br.com.livraria.desapega_livros.entities.Usuario;
+import br.com.livraria.desapega_livros.entities.enuns.StatusUsuario;
 import br.com.livraria.desapega_livros.infra.exception.RegistroNaoExisteException;
 import br.com.livraria.desapega_livros.repositories.EnderecoRepository;
 import br.com.livraria.desapega_livros.repositories.UsuarioRepository;
-import br.com.livraria.desapega_livros.entities.Usuario;
-import br.com.livraria.desapega_livros.entities.enuns.StatusUsuario;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UsuarioService {
@@ -25,48 +22,63 @@ public class UsuarioService {
 	private EnderecoRepository enderecoRepo;
 
 	@Autowired
+	private EnderecoService enderecoService;
+
+	@Autowired
 	private PasswordEncoder passwordEncoder;
 
+	private Endereco obtemEnderecoUsuario(UsuarioFORM usuarioForm) {
+
+		if (usuarioForm.idEndereco() != null) {
+			var optionalEndereco = enderecoRepo.findById(usuarioForm.idEndereco());
+
+			if (optionalEndereco.isEmpty()) {
+				throw new RegistroNaoExisteException(
+						"Não existe endereço cadastrado para o id : " + usuarioForm.idEndereco());
+			}
+			return optionalEndereco.get();
+		}
+
+		boolean naoInformouDadosEndereco =  usuarioForm.endereco() == null ||
+				(usuarioForm.endereco().cep() == null || usuarioForm.endereco().numero() == null);
+
+		if(naoInformouDadosEndereco){
+			throw new IllegalArgumentException(
+					"Caso o id do endereco não seja informado os dados do mesmo devem ser informados!");
+		}
+		return this.enderecoService.cadastra(usuarioForm.endereco());
+	}
+
 	@Transactional
-	public ResponseEntity<?> cadastrar(UsuarioFORM usuarioForm) {
+	public Usuario cadastrar(UsuarioFORM usuarioForm) {
 
 		Usuario usuario = new Usuario(usuarioForm);
 
-		if (!enderecoRepo.existsById(usuarioForm.idEndereco())) {
-			throw new RegistroNaoExisteException(
-					"Não existe endereço cadastrado para o id : " + usuarioForm.idEndereco());
-		}
-
-		var endereco = enderecoRepo.findById(usuarioForm.idEndereco()).get();
-
+		var endereco = this.obtemEnderecoUsuario(usuarioForm);
 		usuario.setEndereco(endereco);
+
 		usuario.setStatus(StatusUsuario.ATIVO.toString());
-		usuario.setSenha(passwordEncoder.encode(usuarioForm.senha()));
+		usuario.setSenha(this.passwordEncoder.encode(usuarioForm.senha()));
 
-		var usuarioSalvo = usuarioRepo.save(usuario);
-
-		UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
-		var uri = uriBuilder.path("/usuario/{id}").buildAndExpand(usuarioSalvo.getId()).toUri();
-
-		return ResponseEntity.created(uri).body(new UsuarioDTO(usuarioSalvo));
+		return  this.usuarioRepo.save(usuario);
 	}
 
 	@Transactional
-	public ResponseEntity<?> suspender(Integer idUsuario){
+	public Usuario suspender(Integer idUsuario){
 
 		if(!usuarioRepo.existsById(idUsuario)){
-			throw new RegistroNaoExisteException("Não existe usuário cadastrado para o id : " + idUsuario);
+			throw new RegistroNaoExisteException(
+					"Não existe usuário cadastrado para o id : " + idUsuario);
 		}
 
 		Usuario usuario = usuarioRepo.findById(idUsuario).get();
-
 		usuario.setStatus(StatusUsuario.SUSPENSO.toString());
 
-		return ResponseEntity.ok(new UsuarioDTO(usuarioRepo.save(usuario)));
+		return this.usuarioRepo.save(usuario);
 	}
 
 	@Transactional
-	public ResponseEntity<?> inativar(Integer idUsuario){
+	public Usuario inativar(Integer idUsuario){
 
 		if(!usuarioRepo.existsById(idUsuario)){
 			throw new RegistroNaoExisteException("Não existe usuário para o id : " + idUsuario);
@@ -76,6 +88,6 @@ public class UsuarioService {
 
 		usuario.setStatus(StatusUsuario.INATIVO.toString());
 
-		return ResponseEntity.ok(new UsuarioDTO(usuarioRepo.save(usuario)));
+		return  this.usuarioRepo.save(usuario);
 	}
 }

@@ -8,14 +8,8 @@ public record EnderecoFORM(
 		@NotNull
 		String cep,
 
-		@NotNull Integer numero,
+		@NotNull
+		Integer numero,
 
-		Integer idCidade,
-
-		String rua,
-
-		String bairro,
-
-		String complemento) {
-
-}
+		String complemento
+) {}

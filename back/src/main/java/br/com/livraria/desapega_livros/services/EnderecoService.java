@@ -1,29 +1,23 @@
 package br.com.livraria.desapega_livros.services;
 
-import br.com.livraria.desapega_livros.repositories.bases.BaseRepository;
-import br.com.livraria.desapega_livros.services.bases.BaseService;
-import br.com.livraria.desapega_livros.services.bases.BaseServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.util.UriComponentsBuilder;
-
 import br.com.livraria.desapega_livros.controllers.dto.EnderecoDTO;
 import br.com.livraria.desapega_livros.controllers.dto.ViaCepResponseDTO;
 import br.com.livraria.desapega_livros.controllers.form.EnderecoFORM;
-import br.com.livraria.desapega_livros.infra.exception.NenhumRegistroEncontradoException;
+import br.com.livraria.desapega_livros.entities.Cidade;
+import br.com.livraria.desapega_livros.entities.Endereco;
+import br.com.livraria.desapega_livros.entities.Estado;
 import br.com.livraria.desapega_livros.infra.exception.RegistroEncontradoException;
 import br.com.livraria.desapega_livros.infra.exception.RegistroNaoExisteException;
 import br.com.livraria.desapega_livros.repositories.CidadeRepository;
 import br.com.livraria.desapega_livros.repositories.EnderecoRepository;
 import br.com.livraria.desapega_livros.repositories.EstadoRepository;
 import br.com.livraria.desapega_livros.repositories.UsuarioRepository;
-import br.com.livraria.desapega_livros.entities.Cidade;
-import br.com.livraria.desapega_livros.entities.Endereco;
-import br.com.livraria.desapega_livros.entities.Estado;
+import br.com.livraria.desapega_livros.services.bases.BaseService;
+import br.com.livraria.desapega_livros.services.bases.BaseServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class EnderecoService
@@ -50,57 +44,43 @@ public class EnderecoService
 	}
 
 	@Transactional
-	public ResponseEntity<?> cadastra(EnderecoFORM enderecoForm) {
+	public Endereco cadastra(EnderecoFORM enderecoForm) {
 
-		if (enderecoJaCadastrado(enderecoForm) > 0) {
-			throw new RegistroEncontradoException("Endereço já cadastrado no banco de dados!");
+		if (this.enderecoJaCadastrado(enderecoForm)) {
+			throw new RegistroEncontradoException(
+					"Endereço já cadastrado no banco de dados!");
 		}
 
-		ViaCepResponseDTO dadosEndereco = this.validaCEP.cepExistente(enderecoForm.cep());
+		ViaCepResponseDTO dadosEndereco = this.validaCEP
+				.cepExistente(enderecoForm.cep());
 
 		Endereco endereco = new Endereco(dadosEndereco);
 		endereco.setNumero(enderecoForm.numero());
 		endereco.setComplemento(enderecoForm.complemento());
 
-		Cidade cidade;
-		Estado estado;
+		String nomeCidadeViaAPI = dadosEndereco.localidade().trim();
+		Cidade cidade = cidadeRepo.findByNome(nomeCidadeViaAPI);
 
-		if ((enderecoForm.idCidade() != null && !cidadeRepo.existsById(enderecoForm.idCidade()))
-				|| !cidadeRepo.existsByNomeIgnoreCase(dadosEndereco.localidade())) {
+		if (cidade == null) {
+			String nomeEstadoViaAPI = dadosEndereco.estado().trim();
+			Estado estado = this.estadoRepo.findByNome(nomeEstadoViaAPI);
 
-			cidade = new Cidade();
-			cidade.setNome(dadosEndereco.localidade().trim());
-
-			if (!estadoRepo.existsByNomeIgnoreCase(dadosEndereco.localidade())) {
-				estado = new Estado();
-				estado.setNome(dadosEndereco.estado().trim());
-				estado.setUf(dadosEndereco.uf().trim());
-
-				estado = estadoRepo.save(estado);
-			} else {
-				estado = estadoRepo.findByNome(dadosEndereco.estado().trim());
+			if (estado == null ) {
+				estado = estadoRepo.save(
+						new Estado(nomeEstadoViaAPI, dadosEndereco.uf().trim() )
+				);
 			}
-
-			cidade.setEstado(estado);
-
-			cidade = cidadeRepo.save(cidade);
-		} else {
-			cidade = cidadeRepo.findByNome(dadosEndereco.localidade().trim());
+			cidade = this.cidadeRepo.save(new Cidade(nomeCidadeViaAPI, estado));
 		}
-
 		endereco.setCidade(cidade);
 
-		EnderecoDTO enderecoSalvoDTO = new EnderecoDTO(enderecoRepo.save(endereco));
-
-		UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
-		var uri = uriBuilder.path("/endereco/{id}").buildAndExpand(endereco.getId()).toUri();
-
-		return ResponseEntity.created(uri).body(enderecoSalvoDTO);
+		return this.enderecoRepo.save(endereco);
 	}
 
-	private int enderecoJaCadastrado(EnderecoFORM enderecoF) {
-		Integer idEndereco = enderecoRepo.existsByCepAndNumero(enderecoF.cep(), enderecoF.numero());
-		return (idEndereco == null) ? -1 : idEndereco;
+	private boolean enderecoJaCadastrado(EnderecoFORM enderecoF) {
+		Integer idEndereco = enderecoRepo
+				.existsByCepAndNumero(enderecoF.cep(), enderecoF.numero());
+		return idEndereco != null;
 	}
 
 	@Transactional
