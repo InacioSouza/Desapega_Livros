@@ -2,12 +2,13 @@ package br.com.livraria.desapega_livros.repositories;
 
 import br.com.livraria.desapega_livros.entities.Autor;
 import br.com.livraria.desapega_livros.entities.Livro;
+import br.com.livraria.desapega_livros.entities.LivroAutor;
 import br.com.livraria.desapega_livros.repositories.bases.BaseRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 public interface LivroAutorRepository
-		extends BaseRepository<Livro, Integer> {
+		extends BaseRepository<LivroAutor, Integer> {
 
 	@Query("""
 			SELECT EXISTS (
