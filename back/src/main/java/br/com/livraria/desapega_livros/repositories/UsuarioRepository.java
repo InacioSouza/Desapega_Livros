@@ -1,15 +1,15 @@
 package br.com.livraria.desapega_livros.repositories;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import br.com.livraria.desapega_livros.entities.Endereco;
+import br.com.livraria.desapega_livros.entities.Usuario;
+import br.com.livraria.desapega_livros.repositories.bases.BaseRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
 
-import br.com.livraria.desapega_livros.entities.Endereco;
-import br.com.livraria.desapega_livros.entities.Usuario;
-
 @Repository
-public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
+public interface UsuarioRepository
+		extends BaseRepository<Usuario, Integer> {
 
 	@Query("""
 			SELECT u.endereco

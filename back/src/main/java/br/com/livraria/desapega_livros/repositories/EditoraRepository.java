@@ -1,12 +1,12 @@
 package br.com.livraria.desapega_livros.repositories;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import br.com.livraria.desapega_livros.entities.Editora;
+import br.com.livraria.desapega_livros.repositories.bases.BaseRepository;
 import org.springframework.stereotype.Repository;
 
-import br.com.livraria.desapega_livros.entities.Editora;
-
 @Repository
-public interface EditoraRepository extends JpaRepository<Editora, Integer> {
+public interface EditoraRepository
+		extends BaseRepository<Editora, Integer> {
 
 	boolean existsByNome(String nome);
 

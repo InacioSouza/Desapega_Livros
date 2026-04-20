@@ -1,13 +1,13 @@
 package br.com.livraria.desapega_livros.repositories;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import br.com.livraria.desapega_livros.entities.Endereco;
+import br.com.livraria.desapega_livros.repositories.bases.BaseRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import br.com.livraria.desapega_livros.entities.Endereco;
-
 @Repository
-public interface EnderecoRepository extends JpaRepository<Endereco, Integer> {
+public interface EnderecoRepository
+		extends BaseRepository<Endereco, Integer> {
 
 	@Query("""
 			SELECT e.id

@@ -1,19 +1,19 @@
 package br.com.livraria.desapega_livros.repositories;
 
-import java.util.List;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
-
 import br.com.livraria.desapega_livros.entities.Autor;
 import br.com.livraria.desapega_livros.entities.Categoria;
 import br.com.livraria.desapega_livros.entities.Livro;
 import br.com.livraria.desapega_livros.entities.enuns.StatusLivro;
+import br.com.livraria.desapega_livros.repositories.bases.BaseRepository;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
-public interface LivroRepository extends JpaRepository<Livro, Integer> {
+public interface LivroRepository
+		extends BaseRepository<Livro, Integer> {
 
 	@Query("""
 			SELECT EXISTS (

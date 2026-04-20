@@ -1,12 +1,12 @@
 package br.com.livraria.desapega_livros.repositories;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import br.com.livraria.desapega_livros.entities.Estado;
+import br.com.livraria.desapega_livros.repositories.bases.BaseRepository;
 import org.springframework.stereotype.Repository;
 
-import br.com.livraria.desapega_livros.entities.Estado;
-
 @Repository
-public interface EstadoRepository extends JpaRepository<Estado, Integer> {
+public interface EstadoRepository
+		extends BaseRepository<Estado, Integer> {
 	Boolean existsByNomeIgnoreCase(String nome);
 
 	Estado findByNome(String estado);

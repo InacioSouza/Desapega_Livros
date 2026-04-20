@@ -1,12 +1,12 @@
 package br.com.livraria.desapega_livros.repositories;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import br.com.livraria.desapega_livros.entities.Cidade;
+import br.com.livraria.desapega_livros.repositories.bases.BaseRepository;
 import org.springframework.stereotype.Repository;
 
-import br.com.livraria.desapega_livros.entities.Cidade;
-
 @Repository
-public interface CidadeRepository extends JpaRepository<Cidade, Integer> {
+public interface CidadeRepository
+		extends BaseRepository<Cidade, Integer> {
 
 	Boolean existsByNomeIgnoreCase(String nome);
 
