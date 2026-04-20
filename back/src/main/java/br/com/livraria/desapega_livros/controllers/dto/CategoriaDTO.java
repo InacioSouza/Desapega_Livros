@@ -1,6 +1,6 @@
 package br.com.livraria.desapega_livros.controllers.dto;
 
-import br.com.livraria.desapega_livros.repository.entity.Categoria;
+import br.com.livraria.desapega_livros.entities.Categoria;
 
 public record CategoriaDTO(Integer id, String nome) {
 	public CategoriaDTO(Categoria cateoria) {

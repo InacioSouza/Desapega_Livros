@@ -1,7 +1,7 @@
 package br.com.livraria.desapega_livros.infra.security;
 
-import br.com.livraria.desapega_livros.repository.UsuarioRepository;
-import br.com.livraria.desapega_livros.service.TokenService;
+import br.com.livraria.desapega_livros.repositories.UsuarioRepository;
+import br.com.livraria.desapega_livros.services.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

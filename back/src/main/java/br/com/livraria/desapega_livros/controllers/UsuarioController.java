@@ -1,7 +1,7 @@
 package br.com.livraria.desapega_livros.controllers;
 
 import br.com.livraria.desapega_livros.controllers.form.UsuarioFORM;
-import br.com.livraria.desapega_livros.service.UsuarioService;
+import br.com.livraria.desapega_livros.services.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

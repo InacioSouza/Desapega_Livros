@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.livraria.desapega_livros.controllers.form.CidadeFORM;
-import br.com.livraria.desapega_livros.service.CidadeService;
+import br.com.livraria.desapega_livros.services.CidadeService;
 import jakarta.validation.Valid;
 
 @RestController

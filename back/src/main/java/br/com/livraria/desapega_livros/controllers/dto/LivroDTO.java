@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import br.com.livraria.desapega_livros.repository.entity.Livro;
+import br.com.livraria.desapega_livros.entities.Livro;
 
 public record LivroDTO(Integer id, String titulo, String status, String subtitulo, String descricao, String opniaoDoador,
 		Integer qtdPaginas, String isbn, Integer anoPublicacao, @JsonProperty("editora") EditoraDTO editoraDTO,

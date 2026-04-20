@@ -1,6 +1,6 @@
 package br.com.livraria.desapega_livros.controllers.dto;
 
-import br.com.livraria.desapega_livros.repository.entity.Estado;
+import br.com.livraria.desapega_livros.entities.Estado;
 
 public record EstadoDTO(Integer id, String nome, String uf) {
 

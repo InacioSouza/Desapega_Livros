@@ -1,0 +1,17 @@
+package br.com.livraria.desapega_livros.repositories;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import br.com.livraria.desapega_livros.entities.Autor;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+@Repository
+public interface AutorRepository extends JpaRepository<Autor, Integer> {
+
+	boolean existsByNome(@NotBlank @NotNull String nome);
+
+	Autor findByNome(String nome);
+
+}

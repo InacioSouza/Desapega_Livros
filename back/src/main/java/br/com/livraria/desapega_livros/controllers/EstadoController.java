@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.livraria.desapega_livros.controllers.form.EstadoFORM;
-import br.com.livraria.desapega_livros.service.EstadoService;
+import br.com.livraria.desapega_livros.services.EstadoService;
 import jakarta.validation.Valid;
 
 @RestController

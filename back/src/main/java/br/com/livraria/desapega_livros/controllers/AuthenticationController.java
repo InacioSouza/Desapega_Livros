@@ -2,8 +2,8 @@ package br.com.livraria.desapega_livros.controllers;
 
 import br.com.livraria.desapega_livros.controllers.dto.TokenDTO;
 import br.com.livraria.desapega_livros.controllers.form.LoginFORM;
-import br.com.livraria.desapega_livros.repository.entity.Usuario;
-import br.com.livraria.desapega_livros.service.TokenService;
+import br.com.livraria.desapega_livros.entities.Usuario;
+import br.com.livraria.desapega_livros.services.TokenService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

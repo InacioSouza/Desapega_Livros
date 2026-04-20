@@ -1,6 +1,6 @@
 package br.com.livraria.desapega_livros.controllers.dto;
 
-import br.com.livraria.desapega_livros.repository.entity.Usuario;
+import br.com.livraria.desapega_livros.entities.Usuario;
 
 public record UsuarioDTO(Integer id, String nome, String sobrenome, String email, String whatsapp, Integer advertencias,
 		String status) {

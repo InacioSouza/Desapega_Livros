@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import br.com.livraria.desapega_livros.controllers.form.SolicitacaoFORM;
-import br.com.livraria.desapega_livros.service.SolicitacaoService;
+import br.com.livraria.desapega_livros.services.SolicitacaoService;
 import jakarta.validation.Valid;
 
 @RestController

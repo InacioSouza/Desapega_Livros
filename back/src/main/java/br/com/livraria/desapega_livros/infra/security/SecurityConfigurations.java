@@ -1,6 +1,6 @@
 package br.com.livraria.desapega_livros.infra.security;
 
-import br.com.livraria.desapega_livros.service.TokenService;
+import br.com.livraria.desapega_livros.services.TokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -43,10 +43,9 @@ public class SecurityConfigurations {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize ->
-                        authorize.requestMatchers("/autor/**").authenticated()
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        .anyRequest().permitAll())
-                .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
+                    authorize.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+                            .permitAll().anyRequest().authenticated()
+                ).addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

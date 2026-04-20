@@ -17,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import br.com.livraria.desapega_livros.controllers.form.LivroFORM;
 import br.com.livraria.desapega_livros.controllers.form.LivroIsbnFORM;
-import br.com.livraria.desapega_livros.service.LivroService;
+import br.com.livraria.desapega_livros.services.LivroService;
 import jakarta.validation.Valid;
 
 @RestController

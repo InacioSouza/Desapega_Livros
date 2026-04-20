@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.livraria.desapega_livros.controllers.form.IdiomaFORM;
-import br.com.livraria.desapega_livros.service.IdiomaService;
+import br.com.livraria.desapega_livros.services.IdiomaService;
 import jakarta.validation.Valid;
 
 @RestController

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.livraria.desapega_livros.controllers.form.AutorFORM;
-import br.com.livraria.desapega_livros.service.AutorService;
+import br.com.livraria.desapega_livros.services.AutorService;
 import jakarta.validation.Valid;
 
 @RestController

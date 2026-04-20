@@ -1,6 +1,6 @@
 package br.com.livraria.desapega_livros.controllers.dto;
 
-import br.com.livraria.desapega_livros.repository.entity.Autor;
+import br.com.livraria.desapega_livros.entities.Autor;
 
 public record AutorDTO(Integer id, String nome) {
 	
