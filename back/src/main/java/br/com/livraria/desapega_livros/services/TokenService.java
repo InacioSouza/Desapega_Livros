@@ -2,6 +2,7 @@ package br.com.livraria.desapega_livros.services;
 
 
 import br.com.livraria.desapega_livros.entities.Usuario;
+import br.com.livraria.desapega_livros.infra.exception.FalhaAutenticacaoException;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
@@ -49,7 +50,7 @@ public class TokenService {
                     .getSubject();
 
         } catch (JWTVerificationException exception){
-            return "";
+            throw new FalhaAutenticacaoException("Token inválido ou expriado!");
         }
     }
 

@@ -3,6 +3,8 @@ package br.com.livraria.desapega_livros.controllers;
 import br.com.livraria.desapega_livros.controllers.bases.BaseController;
 import br.com.livraria.desapega_livros.entities.Estado;
 import br.com.livraria.desapega_livros.services.bases.BaseService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -21,6 +23,8 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/estado")
+@SecurityRequirement(name = "bearer-key")
+@Tag(name = "Estado")
 public class EstadoController
 		extends BaseController<Estado, Integer> {
 

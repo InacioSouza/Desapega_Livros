@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController()
-@RequestMapping(PrefixEndpoint.PREFIX_PUBLIC +"/public")
+@RequestMapping(PrefixEndpoint.PREFIX_PUBLIC)
 @Tag(name = "Public")
 public class CreateUserController {
 
@@ -23,7 +23,7 @@ public class CreateUserController {
         this.service = service;
     }
 
-    @PostMapping()
+    @PostMapping("/usuario")
     public ResponseEntity<?> cadastrar(
             @RequestBody
             @Valid

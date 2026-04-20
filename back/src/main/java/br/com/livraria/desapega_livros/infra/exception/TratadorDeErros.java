@@ -8,6 +8,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class TratadorDeErros {
 
+	@ExceptionHandler(FalhaAutenticacaoException.class)
+	public ResponseEntity<?> trataErroEncontrado(FalhaAutenticacaoException ex) {
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+	}
+
 	@ExceptionHandler(RegistroEncontradoException.class)
 	public ResponseEntity<?> trataErroEncontrado(RegistroEncontradoException ex) {
 		return ResponseEntity.status(HttpStatus.FOUND).body(ex.getMessage());

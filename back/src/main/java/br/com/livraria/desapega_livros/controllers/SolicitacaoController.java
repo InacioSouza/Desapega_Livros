@@ -1,18 +1,18 @@
 package br.com.livraria.desapega_livros.controllers;
 
 import br.com.livraria.desapega_livros.controllers.bases.BaseController;
+import br.com.livraria.desapega_livros.controllers.form.SolicitacaoFORM;
 import br.com.livraria.desapega_livros.entities.Solicitacao;
-import br.com.livraria.desapega_livros.services.bases.BaseService;
-import org.springframework.beans.factory.annotation.Autowired;
+import br.com.livraria.desapega_livros.services.SolicitacaoService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import br.com.livraria.desapega_livros.controllers.form.SolicitacaoFORM;
-import br.com.livraria.desapega_livros.services.SolicitacaoService;
-import jakarta.validation.Valid;
-
 @RestController
 @RequestMapping("/solicitacao")
+@Tag(name = "Solicitação",
+		description = "End-points destinados ao gerenciamento de solicitações. Um usuário solicita um livro de outro usuário, o usuário deno do livro decide se a solicitação será aprovada")
 public class SolicitacaoController
 		extends BaseController<Solicitacao, Integer> {
 

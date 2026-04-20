@@ -4,6 +4,8 @@ import br.com.livraria.desapega_livros.controllers.bases.BaseController;
 import br.com.livraria.desapega_livros.controllers.form.CidadeFORM;
 import br.com.livraria.desapega_livros.entities.Cidade;
 import br.com.livraria.desapega_livros.services.CidadeService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/cidade")
+@SecurityRequirement(name = "bearer-key")
+@Tag(name = "Cidade")
 public class CidadeController
 		extends BaseController<Cidade, Integer> {
 

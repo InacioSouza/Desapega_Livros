@@ -5,6 +5,8 @@ import br.com.livraria.desapega_livros.controllers.dto.EnderecoDTO;
 import br.com.livraria.desapega_livros.controllers.form.EnderecoFORM;
 import br.com.livraria.desapega_livros.entities.Endereco;
 import br.com.livraria.desapega_livros.services.EnderecoService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +14,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("/endereco")
+@SecurityRequirement(name = "bearer-key")
+@Tag(name = "Endereço")
 public class EnderecoController
 		extends BaseController<Endereco, Integer> {
 

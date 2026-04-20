@@ -4,6 +4,7 @@ import br.com.livraria.desapega_livros.controllers.bases.BaseController;
 import br.com.livraria.desapega_livros.entities.Editora;
 import br.com.livraria.desapega_livros.services.bases.BaseService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -24,6 +25,7 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/editora")
 @SecurityRequirement(name = "bearer-key")
+@Tag(name = "Editora")
 public class EditoraController
 		extends BaseController<Editora, Integer> {
 

@@ -4,12 +4,16 @@ import br.com.livraria.desapega_livros.controllers.bases.BaseController;
 import br.com.livraria.desapega_livros.controllers.form.IdiomaFORM;
 import br.com.livraria.desapega_livros.entities.Idioma;
 import br.com.livraria.desapega_livros.services.IdiomaService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/idioma")
+@SecurityRequirement(name = "bearer-key")
+@Tag(name = "Idioma")
 public class IdiomaController
 		extends BaseController<Idioma, Integer> {
 

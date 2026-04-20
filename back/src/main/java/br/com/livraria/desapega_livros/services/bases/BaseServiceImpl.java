@@ -13,7 +13,9 @@ public abstract class BaseServiceImpl<T, ID> implements BaseService<T, ID> {
 
     private BaseRepository baseRepository;
 
-    public BaseServiceImpl(BaseRepository baseRepository) {}
+    public BaseServiceImpl(BaseRepository baseRepository) {
+        this.baseRepository = baseRepository;
+    }
 
     @Override
     public T findById(ID id) {
