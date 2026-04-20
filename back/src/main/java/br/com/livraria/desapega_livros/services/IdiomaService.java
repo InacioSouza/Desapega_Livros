@@ -1,24 +1,28 @@
 package br.com.livraria.desapega_livros.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
+import br.com.livraria.desapega_livros.controllers.dto.IdiomaDTO;
+import br.com.livraria.desapega_livros.controllers.form.IdiomaFORM;
+import br.com.livraria.desapega_livros.entities.Idioma;
+import br.com.livraria.desapega_livros.infra.exception.RegistroNaoExisteException;
+import br.com.livraria.desapega_livros.repositories.IdiomaRepository;
+import br.com.livraria.desapega_livros.services.bases.BaseService;
+import br.com.livraria.desapega_livros.services.bases.BaseServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import br.com.livraria.desapega_livros.controllers.dto.IdiomaDTO;
-import br.com.livraria.desapega_livros.controllers.form.IdiomaFORM;
-import br.com.livraria.desapega_livros.infra.exception.NenhumRegistroEncontradoException;
-import br.com.livraria.desapega_livros.infra.exception.RegistroNaoExisteException;
-import br.com.livraria.desapega_livros.repositories.IdiomaRepository;
-import br.com.livraria.desapega_livros.entities.Idioma;
-
 @Service
-public class IdiomaService {
+public class IdiomaService
+		extends BaseServiceImpl<Idioma, Integer>
+		implements BaseService<Idioma, Integer> {
 
-	@Autowired
 	private IdiomaRepository idiomaRepo;
+
+	public IdiomaService(IdiomaRepository idiomaRepo) {
+		super(idiomaRepo);
+		this.idiomaRepo = idiomaRepo;
+	}
 
 	@Transactional
 	public ResponseEntity<?> cadastrar(IdiomaFORM idiomaForm) {
@@ -39,17 +43,6 @@ public class IdiomaService {
 	}
 
 	@Transactional
-	public ResponseEntity<?> listar(Pageable pagina) {
-		var idiomas = idiomaRepo.findAll(pagina).map(IdiomaDTO::new);
-
-		if (idiomas.getNumberOfElements() == 0) {
-			throw new NenhumRegistroEncontradoException("Ainda não há idiomas cadastrados no banco de dados!");
-		}
-
-		return ResponseEntity.ok(idiomas);
-	}
-
-	@Transactional
 	public ResponseEntity<?> atualizar(Integer id, IdiomaFORM idiomaForm) {
 
 		if (!idiomaRepo.existsById(id)) {
@@ -62,17 +55,5 @@ public class IdiomaService {
 		return ResponseEntity.ok(new IdiomaDTO(idioma));
 
 	}
-
-	@Transactional
-	public ResponseEntity<?> excluir(Integer id) {
-
-		if (!idiomaRepo.existsById(id)) {
-			throw new RegistroNaoExisteException("Não existe idioma cadastrado para o id : " + id);
-		}
-
-		idiomaRepo.deleteById(id);
-
-		return ResponseEntity.ok("Idioma excluído com sucesso!");
-	}
-
+	
 }

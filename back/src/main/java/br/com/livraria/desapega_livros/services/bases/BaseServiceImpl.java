@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 
-public class BaseServiceImpl<T, ID> implements BaseService<T, ID> {
+public abstract class BaseServiceImpl<T, ID> implements BaseService<T, ID> {
 
     private BaseRepository baseRepository;
 

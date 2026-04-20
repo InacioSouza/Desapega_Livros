@@ -21,12 +21,14 @@ import br.com.livraria.desapega_livros.entities.Autor;
 
 @Service
 public class AutorService
-		extends BaseServiceImpl<Autor, Integer> {
+		extends BaseServiceImpl<Autor, Integer>
+		implements  BaseService<Autor, Integer>{
 
 	private AutorRepository autorRepo;
 
-	public AutorService(AutorRepository baseRepository) {
-		super(baseRepository);
+	public AutorService(AutorRepository autorRepo) {
+		super(autorRepo);
+		this.autorRepo = autorRepo;
 	}
 
 	@Transactional

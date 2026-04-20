@@ -1,5 +1,8 @@
 package br.com.livraria.desapega_livros.controllers;
 
+import br.com.livraria.desapega_livros.controllers.bases.BaseController;
+import br.com.livraria.desapega_livros.entities.Endereco;
+import br.com.livraria.desapega_livros.services.bases.BaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -18,19 +21,19 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/endereco")
-public class EnderecoController {
+public class EnderecoController
+		extends BaseController<Endereco, Integer> {
 
-	@Autowired
 	private EnderecoService service;
+
+	public EnderecoController(EnderecoService service) {
+		super(service);
+		this.service = service;
+	}
 
 	@PostMapping
 	public ResponseEntity<?> cadastraEndereco(@RequestBody @Valid EnderecoFORM enderecoForm) {
 		return service.cadastra(enderecoForm);
-	}
-
-	@GetMapping
-	public ResponseEntity<?> listarEnderecos(@PageableDefault(size = 10, sort = { "logradouro" }) Pageable pagina) {
-		return service.listar(pagina);
 	}
 	
 	@GetMapping("/usuario/{id}")

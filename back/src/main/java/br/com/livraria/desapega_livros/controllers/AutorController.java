@@ -1,49 +1,33 @@
 package br.com.livraria.desapega_livros.controllers;
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import br.com.livraria.desapega_livros.controllers.bases.BaseController;
 import br.com.livraria.desapega_livros.controllers.form.AutorFORM;
+import br.com.livraria.desapega_livros.entities.Autor;
 import br.com.livraria.desapega_livros.services.AutorService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/autor")
 @SecurityRequirement(name = "bearer-key")
-public class AutorController {
+public class AutorController extends BaseController<Autor, Integer> {
 
-	@Autowired
 	private AutorService service;
+
+	public AutorController(AutorService service) {
+		super(service);
+		this.service = service;
+	}
 
 	@PostMapping
 	public ResponseEntity<?> cadastraAutor(@RequestBody @Valid AutorFORM autorForm) {
-		return service.cadastra(autorForm);
-	}
-
-	@GetMapping
-	public ResponseEntity<?> listar(@PageableDefault(size = 10, sort = { "nome" }) Pageable pagina) {
-		return ResponseEntity.ok(this.service.findWithPagination(pagina));
+		return this.service.cadastra(autorForm);
 	}
 
 	@PutMapping("/{id}")
 	public ResponseEntity<?> atualizar(@PathVariable Integer id, @Valid @RequestBody AutorFORM autorForm) {
-		return service.atualizar(id, autorForm);
-	}
-
-	@DeleteMapping("/{id}")
-	public ResponseEntity.HeadersBuilder<?> deletar(@PathVariable Integer id) {
-		this.service.simpleDeleteById(id);
-		return ResponseEntity.noContent();
+		return this.service.atualizar(id, autorForm);
 	}
 }

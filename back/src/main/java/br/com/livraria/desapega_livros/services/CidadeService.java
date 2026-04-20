@@ -1,30 +1,35 @@
 package br.com.livraria.desapega_livros.services;
 
+import br.com.livraria.desapega_livros.controllers.dto.CidadeDTO;
+import br.com.livraria.desapega_livros.controllers.form.CidadeFORM;
+import br.com.livraria.desapega_livros.entities.Cidade;
+import br.com.livraria.desapega_livros.entities.Estado;
+import br.com.livraria.desapega_livros.infra.exception.RegistroEncontradoException;
+import br.com.livraria.desapega_livros.infra.exception.RegistroNaoExisteException;
+import br.com.livraria.desapega_livros.repositories.CidadeRepository;
+import br.com.livraria.desapega_livros.repositories.EstadoRepository;
+import br.com.livraria.desapega_livros.services.bases.BaseService;
+import br.com.livraria.desapega_livros.services.bases.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import br.com.livraria.desapega_livros.controllers.dto.CidadeDTO;
-import br.com.livraria.desapega_livros.controllers.form.CidadeFORM;
-import br.com.livraria.desapega_livros.infra.exception.NenhumRegistroEncontradoException;
-import br.com.livraria.desapega_livros.infra.exception.RegistroEncontradoException;
-import br.com.livraria.desapega_livros.infra.exception.RegistroNaoExisteException;
-import br.com.livraria.desapega_livros.repositories.CidadeRepository;
-import br.com.livraria.desapega_livros.repositories.EstadoRepository;
-import br.com.livraria.desapega_livros.entities.Cidade;
-import br.com.livraria.desapega_livros.entities.Estado;
-
 @Service
-public class CidadeService {
+public class CidadeService
+		extends BaseServiceImpl<Cidade, Integer>
+		implements BaseService<Cidade, Integer> {
 
 	@Autowired
 	private EstadoRepository estadoRepo;
 
-	@Autowired
 	private CidadeRepository cidadeRepo;
+
+	public CidadeService(CidadeRepository cidadeRepo) {
+		super(cidadeRepo);
+		this.cidadeRepo = cidadeRepo;
+	}
 
 	@Transactional
 	public ResponseEntity<?> cadastra(CidadeFORM cidadeForm) {
@@ -48,18 +53,6 @@ public class CidadeService {
 		var uri = uribuilder.path("/cidade/{id}").buildAndExpand(cidade.getId()).toUri();
 
 		return ResponseEntity.created(uri).body(new CidadeDTO(cidade));
-	}
-
-	@Transactional
-	public ResponseEntity<?> listar(Pageable pagina) {
-
-		var cidades = cidadeRepo.findAll(pagina).map(CidadeDTO::new);
-
-		if (cidades.getNumberOfElements() == 0) {
-			throw new NenhumRegistroEncontradoException("Não há cidades cadastradas no banco!");
-		}
-
-		return ResponseEntity.ok(cidades);
 	}
 
 }

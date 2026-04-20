@@ -1,5 +1,8 @@
 package br.com.livraria.desapega_livros.controllers;
 
+import br.com.livraria.desapega_livros.controllers.bases.BaseController;
+import br.com.livraria.desapega_livros.entities.Solicitacao;
+import br.com.livraria.desapega_livros.services.bases.BaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,10 +13,15 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/solicitacao")
-public class SolicitacaoController {
+public class SolicitacaoController
+		extends BaseController<Solicitacao, Integer> {
 
-	@Autowired
 	private SolicitacaoService service;
+
+	public SolicitacaoController(SolicitacaoService service) {
+		super(service);
+		this.service = service;
+	}
 
 	@PostMapping
 	public ResponseEntity<?> cadastrar(@RequestBody @Valid SolicitacaoFORM solicitacaoForm) {

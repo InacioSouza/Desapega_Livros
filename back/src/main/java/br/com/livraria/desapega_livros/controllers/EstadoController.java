@@ -1,5 +1,8 @@
 package br.com.livraria.desapega_livros.controllers;
 
+import br.com.livraria.desapega_livros.controllers.bases.BaseController;
+import br.com.livraria.desapega_livros.entities.Estado;
+import br.com.livraria.desapega_livros.services.bases.BaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -17,26 +20,19 @@ import br.com.livraria.desapega_livros.services.EstadoService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/" +
-		"")
-public class EstadoController {
+@RequestMapping("/estado")
+public class EstadoController
+		extends BaseController<Estado, Integer> {
 
-	@Autowired
 	private EstadoService service;
+
+	public EstadoController(EstadoService service) {
+		super(service);
+		this.service = service;
+	}
 
 	@PostMapping
 	public ResponseEntity<?> cadastraEstado(@RequestBody @Valid EstadoFORM estadoForm) {
 		return service.cadastra(estadoForm);
 	}
-	
-	@GetMapping
-	public ResponseEntity<?> listar(@PageableDefault(size = 10, sort = {"nome"}) Pageable pagina){
-		return service.listar(pagina);
-	}
-	
-	@DeleteMapping("/{id}")
-	public ResponseEntity<?> excluirPorId(@PathVariable Integer id){
-		return service.excluir(id);
-	}
-	
 }

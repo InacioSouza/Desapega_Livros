@@ -11,6 +11,9 @@ import br.com.livraria.desapega_livros.infra.exception.NaoAtendeValidacaoExcepti
 import br.com.livraria.desapega_livros.entities.Livro;
 import br.com.livraria.desapega_livros.entities.Solicitacao;
 import br.com.livraria.desapega_livros.entities.enuns.StatusSolicitacao;
+import br.com.livraria.desapega_livros.repositories.bases.BaseRepository;
+import br.com.livraria.desapega_livros.services.bases.BaseService;
+import br.com.livraria.desapega_livros.services.bases.BaseServiceImpl;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -30,9 +33,10 @@ import br.com.livraria.desapega_livros.repositories.UsuarioRepository;
 import br.com.livraria.desapega_livros.entities.enuns.StatusLivro;
 
 @Service
-public class SolicitacaoService {
+public class SolicitacaoService
+		extends BaseServiceImpl<Solicitacao, Integer>
+		implements BaseService<Solicitacao, Integer> {
 
-	@Autowired
 	private SolicitacaoRepository solicitacaoRepo;
 
 	@Autowired
@@ -43,6 +47,11 @@ public class SolicitacaoService {
 
 	@PersistenceContext
 	private EntityManager em;
+
+	public SolicitacaoService(SolicitacaoRepository solicitacaoRepo) {
+		super(solicitacaoRepo);
+		this.solicitacaoRepo = solicitacaoRepo;
+	}
 
 	@Transactional
 	public ResponseEntity<?> cadastrar(SolicitacaoFORM solicitacaoForm) {

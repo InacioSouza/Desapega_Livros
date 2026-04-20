@@ -1,25 +1,29 @@
 package br.com.livraria.desapega_livros.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
+import br.com.livraria.desapega_livros.controllers.dto.CategoriaDTO;
+import br.com.livraria.desapega_livros.controllers.form.CategoriaFORM;
+import br.com.livraria.desapega_livros.entities.Categoria;
+import br.com.livraria.desapega_livros.infra.exception.RegistroEncontradoException;
+import br.com.livraria.desapega_livros.infra.exception.RegistroNaoExisteException;
+import br.com.livraria.desapega_livros.repositories.CategoriaRepository;
+import br.com.livraria.desapega_livros.services.bases.BaseService;
+import br.com.livraria.desapega_livros.services.bases.BaseServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import br.com.livraria.desapega_livros.controllers.dto.CategoriaDTO;
-import br.com.livraria.desapega_livros.controllers.form.CategoriaFORM;
-import br.com.livraria.desapega_livros.infra.exception.NenhumRegistroEncontradoException;
-import br.com.livraria.desapega_livros.infra.exception.RegistroEncontradoException;
-import br.com.livraria.desapega_livros.infra.exception.RegistroNaoExisteException;
-import br.com.livraria.desapega_livros.repositories.CategoriaRepository;
-import br.com.livraria.desapega_livros.entities.Categoria;
-
 @Service
-public class CategoriaService {
+public class CategoriaService
+		extends BaseServiceImpl<Categoria, Integer>
+		implements BaseService<Categoria, Integer>{
 
-	@Autowired
 	private CategoriaRepository categoriaRepo;
+
+	public CategoriaService(CategoriaRepository categoriaRepo) {
+		super(categoriaRepo);
+		this.categoriaRepo = categoriaRepo;
+	}
 
 	@Transactional
 	public ResponseEntity<?> cadastrar(CategoriaFORM categoriaForm) {
@@ -35,19 +39,6 @@ public class CategoriaService {
 		var uri = uribuilder.path("/categoria/{id}").buildAndExpand(categoria.getId()).toUri();
 
 		return ResponseEntity.created(uri).body(categoriaSalvaDTO);
-	}
-
-	@Transactional
-	public ResponseEntity<?> listar(Pageable pagina) {
-
-		var categorias = categoriaRepo.findAll(pagina).map(CategoriaDTO::new);
-
-		if (categorias.getNumberOfElements() == 0) {
-			throw new NenhumRegistroEncontradoException("Ainda não há nenhuma categoria cadastrada!");
-		}
-
-		return ResponseEntity.ok(categorias);
-
 	}
 
 	@Transactional

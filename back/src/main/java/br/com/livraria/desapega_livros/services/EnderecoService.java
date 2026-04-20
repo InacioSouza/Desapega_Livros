@@ -1,5 +1,8 @@
 package br.com.livraria.desapega_livros.services;
 
+import br.com.livraria.desapega_livros.repositories.bases.BaseRepository;
+import br.com.livraria.desapega_livros.services.bases.BaseService;
+import br.com.livraria.desapega_livros.services.bases.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,8 +26,10 @@ import br.com.livraria.desapega_livros.entities.Endereco;
 import br.com.livraria.desapega_livros.entities.Estado;
 
 @Service
-public class EnderecoService {
-	@Autowired
+public class EnderecoService
+		extends BaseServiceImpl<Endereco, Integer>
+		implements BaseService <Endereco, Integer> {
+
 	private EnderecoRepository enderecoRepo;
 
 	@Autowired
@@ -38,6 +43,11 @@ public class EnderecoService {
 
 	@Autowired
 	private UsuarioRepository usuarioRepo;
+
+	public EnderecoService(EnderecoRepository enderecoRepo) {
+		super(enderecoRepo);
+		this.enderecoRepo = enderecoRepo;
+	}
 
 	@Transactional
 	public ResponseEntity<?> cadastra(EnderecoFORM enderecoForm) {
@@ -91,18 +101,6 @@ public class EnderecoService {
 	private int enderecoJaCadastrado(EnderecoFORM enderecoF) {
 		Integer idEndereco = enderecoRepo.existsByCepAndNumero(enderecoF.cep(), enderecoF.numero());
 		return (idEndereco == null) ? -1 : idEndereco;
-	}
-
-	@Transactional
-	public ResponseEntity<Page<EnderecoDTO>> listar(Pageable pagina) {
-
-		var enderecos = enderecoRepo.findAll(pagina).map(EnderecoDTO::new);
-
-		if (enderecos.getTotalElements() == 0) {
-			throw new NenhumRegistroEncontradoException("Ainda não há endereços cadastrados no banco de dados");
-		}
-
-		return ResponseEntity.ok(enderecos);
 	}
 
 	@Transactional

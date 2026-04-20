@@ -1,5 +1,8 @@
 package br.com.livraria.desapega_livros.services;
 
+import br.com.livraria.desapega_livros.repositories.bases.BaseRepository;
+import br.com.livraria.desapega_livros.services.bases.BaseService;
+import br.com.livraria.desapega_livros.services.bases.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,10 +20,16 @@ import br.com.livraria.desapega_livros.repositories.EstadoRepository;
 import br.com.livraria.desapega_livros.entities.Estado;
 
 @Service
-public class EstadoService {
+public class EstadoService
+		extends BaseServiceImpl<Estado, Integer>
+		implements BaseService<Estado, Integer> {
 
-	@Autowired
 	private EstadoRepository repository;
+
+	public EstadoService(EstadoRepository repository) {
+		super(repository);
+		this.repository = repository;
+	}
 
 	@Transactional
 	public ResponseEntity<?> cadastra(EstadoFORM estadoForm) {

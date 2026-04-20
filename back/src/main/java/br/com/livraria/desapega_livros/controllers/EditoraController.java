@@ -1,5 +1,8 @@
 package br.com.livraria.desapega_livros.controllers;
 
+import br.com.livraria.desapega_livros.controllers.bases.BaseController;
+import br.com.livraria.desapega_livros.entities.Editora;
+import br.com.livraria.desapega_livros.services.bases.BaseService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -21,28 +24,23 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/editora")
 @SecurityRequirement(name = "bearer-key")
-public class EditoraController {
+public class EditoraController
+		extends BaseController<Editora, Integer> {
 
-	@Autowired
 	private EditoraService service;
+
+	public EditoraController(EditoraService service) {
+		super(service);
+		this.service = service;
+	}
 
 	@PostMapping
 	public ResponseEntity<?> cadastrarEditora(@RequestBody EditoraFORM editoraForm) {
 		return service.cadastrar(editoraForm);
 	}
 
-	@GetMapping
-	public ResponseEntity<?> listar(@PageableDefault(size = 10, sort = { "nome" }) Pageable pagina) {
-		return service.listar(pagina);
-	}
-
 	@PutMapping("/{id}")
 	public ResponseEntity<?> atualizar(@PathVariable Integer id, @RequestBody @Valid EditoraFORM editoraForm) {
 		return service.atualizar(id, editoraForm);
-	}
-
-	@DeleteMapping("/{id}")
-	public ResponseEntity<?> deletar(@PathVariable Integer id) {
-		return service.excluir(id);
 	}
 }

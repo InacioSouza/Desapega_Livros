@@ -1,5 +1,8 @@
 package br.com.livraria.desapega_livros.services;
 
+import br.com.livraria.desapega_livros.repositories.bases.BaseRepository;
+import br.com.livraria.desapega_livros.services.bases.BaseService;
+import br.com.livraria.desapega_livros.services.bases.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +19,16 @@ import br.com.livraria.desapega_livros.repositories.EditoraRepository;
 import br.com.livraria.desapega_livros.entities.Editora;
 
 @Service
-public class EditoraService {
+public class EditoraService
+		extends BaseServiceImpl<Editora, Integer>
+		implements BaseService<Editora, Integer> {
 
-	@Autowired
 	private EditoraRepository editoraRepo;
+
+	public EditoraService(EditoraRepository editoraRepo) {
+		super(editoraRepo);
+		this.editoraRepo = editoraRepo;
+	}
 
 	@Transactional
 	public ResponseEntity<?> cadastrar(EditoraFORM editoraForm) {
@@ -35,17 +44,6 @@ public class EditoraService {
 		var uri = uribuilder.path("/editora/{id}").buildAndExpand(editora.getId()).toUri();
 
 		return ResponseEntity.created(uri).body(editoraSalvaDTO);
-	}
-
-	@Transactional
-	public ResponseEntity<?> listar(Pageable pagina) {
-		var editoras = editoraRepo.findAll(pagina).map(EditoraDTO::new);
-
-		if (editoras.getNumberOfElements() == 0) {
-			throw new NenhumRegistroEncontradoException("Ainda não há editoras cadastradas no banco");
-		}
-
-		return ResponseEntity.ok(editoras);
 	}
 
 	@Transactional
