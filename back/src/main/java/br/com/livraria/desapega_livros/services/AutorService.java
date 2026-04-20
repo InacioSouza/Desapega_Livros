@@ -1,5 +1,8 @@
 package br.com.livraria.desapega_livros.services;
 
+import br.com.livraria.desapega_livros.repositories.bases.BaseRepository;
+import br.com.livraria.desapega_livros.services.bases.BaseService;
+import br.com.livraria.desapega_livros.services.bases.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,10 +20,14 @@ import br.com.livraria.desapega_livros.repositories.AutorRepository;
 import br.com.livraria.desapega_livros.entities.Autor;
 
 @Service
-public class AutorService {
+public class AutorService
+		extends BaseServiceImpl<Autor, Integer> {
 
-	@Autowired
 	private AutorRepository autorRepo;
+
+	public AutorService(AutorRepository baseRepository) {
+		super(baseRepository);
+	}
 
 	@Transactional
 	public ResponseEntity<?> cadastra(AutorFORM autorForm) {
@@ -37,31 +44,6 @@ public class AutorService {
 		var uri = uribuilder.path("/autor/{id}").buildAndExpand(autor.getId()).toUri();
 
 		return ResponseEntity.created(uri).body(autorSalvoDTO);
-	}
-
-	@Transactional
-	public ResponseEntity<Page<AutorDTO>> listar(Pageable pagina) {
-
-		var autores = autorRepo.findAll(pagina).map(AutorDTO::new);
-
-		if (autores.getNumberOfElements() == 0) {
-			throw new NenhumRegistroEncontradoException("Nenhum autor encontrado no banco de dados");
-		}
-
-		return ResponseEntity.ok(autores);
-	}
-
-	@Transactional
-	public ResponseEntity<?> excluir(Integer id) {
-
-		if (!autorRepo.existsById(id)) {
-			throw new RegistroNaoExisteException("Não existe autor cadastrado para o id : " + id);
-		}
-
-		autorRepo.deleteById(id);
-
-		return ResponseEntity.ok("Autor deletado!");
-
 	}
 
 	@Transactional

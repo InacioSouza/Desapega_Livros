@@ -33,7 +33,7 @@ public class AutorController {
 
 	@GetMapping
 	public ResponseEntity<?> listar(@PageableDefault(size = 10, sort = { "nome" }) Pageable pagina) {
-		return service.listar(pagina);
+		return ResponseEntity.ok(this.service.findWithPagination(pagina));
 	}
 
 	@PutMapping("/{id}")
@@ -42,7 +42,8 @@ public class AutorController {
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<?> deletar(@PathVariable Integer id) {
-		return service.excluir(id);
+	public ResponseEntity.HeadersBuilder<?> deletar(@PathVariable Integer id) {
+		this.service.simpleDeleteById(id);
+		return ResponseEntity.noContent();
 	}
 }
