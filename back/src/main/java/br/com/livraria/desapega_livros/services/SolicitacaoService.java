@@ -11,8 +11,6 @@ import br.com.livraria.desapega_livros.infra.exception.NaoAtendeValidacaoExcepti
 import br.com.livraria.desapega_livros.entities.Livro;
 import br.com.livraria.desapega_livros.entities.Solicitacao;
 import br.com.livraria.desapega_livros.entities.enuns.StatusSolicitacao;
-import br.com.livraria.desapega_livros.repositories.bases.BaseRepository;
-import br.com.livraria.desapega_livros.services.bases.BaseService;
 import br.com.livraria.desapega_livros.services.bases.BaseServiceImpl;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -27,67 +25,69 @@ import org.springframework.transaction.annotation.Transactional;
 import br.com.livraria.desapega_livros.controllers.form.SolicitacaoFORM;
 import br.com.livraria.desapega_livros.infra.exception.RecursoIndisponivelException;
 import br.com.livraria.desapega_livros.infra.exception.RequisicaoInvalidaException;
-import br.com.livraria.desapega_livros.repositories.LivroRepository;
 import br.com.livraria.desapega_livros.repositories.SolicitacaoRepository;
-import br.com.livraria.desapega_livros.repositories.UsuarioRepository;
 import br.com.livraria.desapega_livros.entities.enuns.StatusLivro;
 
 @Service
 public class SolicitacaoService
-		extends BaseServiceImpl<Solicitacao, Integer>
-		implements BaseService<Solicitacao, Integer> {
+		extends BaseServiceImpl<Solicitacao, Integer> {
 
 	private SolicitacaoRepository solicitacaoRepo;
 
-	@Autowired
-	private UsuarioRepository usuarioRepo;
+	private UsuarioService usuarioService;
 
-	@Autowired
-	private LivroRepository livroRepo;
+	private LivroService livroService;
 
 	@PersistenceContext
-	private EntityManager em;
+	private EntityManager entityManager;
 
-	public SolicitacaoService(SolicitacaoRepository solicitacaoRepo) {
+	public SolicitacaoService(
+			SolicitacaoRepository solicitacaoRepo,
+			UsuarioService usuarioService,
+			LivroService livroService
+	) {
 		super(solicitacaoRepo);
 		this.solicitacaoRepo = solicitacaoRepo;
+		this.usuarioService = usuarioService;
+		this.livroService = livroService;
+
 	}
 
 	@Transactional
 	public ResponseEntity<?> cadastrar(SolicitacaoFORM solicitacaoForm) {
 
-		if (!usuarioRepo.existsById(solicitacaoForm.idSolicitante())) {
+		if (!this.usuarioService.existsById(solicitacaoForm.idSolicitante())) {
 			throw new RequisicaoInvalidaException(
 					"Não há usuário cadastrado para o id:" + solicitacaoForm.idSolicitante());
-		}
-
-		if (!livroRepo.existsById(solicitacaoForm.idLivro())) {
-			throw new RequisicaoInvalidaException("Não há livro cadastrado para o id:" + solicitacaoForm.idLivro());
-		}
-
-		if (livroRepo.statusLivro(solicitacaoForm.idLivro()) != StatusLivro.DISPONIVEL) {
-			throw new RecursoIndisponivelException("O livro solicitado não está disponível!");
 		}
 
 		if(qtdSolicitacaoMesPorUsuario(solicitacaoForm.idSolicitante()) >= 2) {
 			throw new NaoAtendeValidacaoException("O usuário atingiu a quantidade máxima de solicitações no mês");
 		}
 
-		Livro livroSolicitado = livroRepo.findById(solicitacaoForm.idLivro()).get();
+		Livro livroSolicitado = this.livroService.findById(solicitacaoForm.idLivro());
 
-		if(livroSolicitado.getDono().getId() == solicitacaoForm.idSolicitante()) {
+		if (livroSolicitado == null) {
+			throw new RequisicaoInvalidaException("Não há livro cadastrado para o id:" + solicitacaoForm.idLivro());
+		}
+
+		if(livroSolicitado.getDono().getId().equals(solicitacaoForm.idSolicitante())) {
 			throw new NaoAtendeValidacaoException("O usuário não pode solicitar um livro que ele mesmo está doando!");
+		}
+
+		if (StatusLivro.DISPONIVEL.toString().equals(livroSolicitado.getStatus())) {
+			throw new RecursoIndisponivelException("O livro solicitado não está disponível!");
 		}
 
 		Solicitacao solicitacao = new Solicitacao();
 		solicitacao.setLivro(livroSolicitado);
-		solicitacao.setUsuario(usuarioRepo.findById(solicitacaoForm.idSolicitante()).get());
+		solicitacao.setUsuario(this.usuarioService.findById(solicitacaoForm.idSolicitante()));
 		solicitacao.setStatus(StatusSolicitacao.AGUARDANDO_APROVACAO);
 		solicitacao.setDataSolicitacao(LocalDate.now());
 
 		livroSolicitado.setStatus(StatusLivro.SOLICITADO.toString());
 
-		SolicitacaoDTO solicitacaoSalvaDTO = new SolicitacaoDTO(solicitacaoRepo.save(solicitacao));
+		SolicitacaoDTO solicitacaoSalvaDTO = new SolicitacaoDTO(this.solicitacaoRepo.save(solicitacao));
 
 		return ResponseEntity.ok(solicitacaoSalvaDTO);
 	}
@@ -139,14 +139,13 @@ public class SolicitacaoService
 		return solicitacoesMes;
 	}
 
-	private void verificaTempoDaSolicitacao(){
-
-	}
 
 	@Scheduled(fixedDelay = 172800000) // 48h
 	@Transactional
 	public void alteraStatusDaSolicitacaoPorTempoDeEspera(){
-		TypedQuery<Solicitacao> querySolicitacoes = em.createNamedQuery("solicitacoes.status", Solicitacao.class);
+		TypedQuery<Solicitacao> querySolicitacoes = this.entityManager
+				.createNamedQuery("solicitacoes.status", Solicitacao.class);
+
 		querySolicitacoes.setParameter("statusSolicitacao", StatusSolicitacao.AGUARDANDO_APROVACAO);
 
 		List<Solicitacao> solicitacoesEmAguardo = querySolicitacoes.getResultList();

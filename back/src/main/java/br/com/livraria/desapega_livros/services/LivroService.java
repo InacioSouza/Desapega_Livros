@@ -1,12 +1,13 @@
 package br.com.livraria.desapega_livros.services;
 
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
+import br.com.livraria.desapega_livros.controllers.dto.LivroDTO;
+import br.com.livraria.desapega_livros.controllers.form.LivroFORM;
+import br.com.livraria.desapega_livros.controllers.form.LivroIsbnFORM;
+import br.com.livraria.desapega_livros.entities.*;
+import br.com.livraria.desapega_livros.entities.enuns.StatusLivro;
+import br.com.livraria.desapega_livros.infra.exception.*;
+import br.com.livraria.desapega_livros.repositories.*;
+import br.com.livraria.desapega_livros.services.bases.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,36 +17,16 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import br.com.livraria.desapega_livros.controllers.dto.LivroDTO;
-import br.com.livraria.desapega_livros.controllers.form.LivroFORM;
-import br.com.livraria.desapega_livros.controllers.form.LivroIsbnFORM;
-import br.com.livraria.desapega_livros.infra.exception.DadoInvalidoException;
-import br.com.livraria.desapega_livros.infra.exception.NenhumRegistroEncontradoException;
-import br.com.livraria.desapega_livros.infra.exception.RegistroEncontradoException;
-import br.com.livraria.desapega_livros.infra.exception.RegistroNaoExisteException;
-import br.com.livraria.desapega_livros.infra.exception.RequisicaoInvalidaException;
-import br.com.livraria.desapega_livros.repositories.AutorRepository;
-import br.com.livraria.desapega_livros.repositories.CategoriaRepository;
-import br.com.livraria.desapega_livros.repositories.CidadeRepository;
-import br.com.livraria.desapega_livros.repositories.EditoraRepository;
-import br.com.livraria.desapega_livros.repositories.IdiomaRepository;
-import br.com.livraria.desapega_livros.repositories.LivroAutorRepository;
-import br.com.livraria.desapega_livros.repositories.LivroCategoriaRepository;
-import br.com.livraria.desapega_livros.repositories.LivroRepository;
-import br.com.livraria.desapega_livros.repositories.UsuarioRepository;
-import br.com.livraria.desapega_livros.entities.Autor;
-import br.com.livraria.desapega_livros.entities.Categoria;
-import br.com.livraria.desapega_livros.entities.Cidade;
-import br.com.livraria.desapega_livros.entities.Editora;
-import br.com.livraria.desapega_livros.entities.Idioma;
-import br.com.livraria.desapega_livros.entities.Livro;
-import br.com.livraria.desapega_livros.entities.LivroAutor;
-import br.com.livraria.desapega_livros.entities.LivroCategoria;
-import br.com.livraria.desapega_livros.entities.Usuario;
-import br.com.livraria.desapega_livros.entities.enuns.StatusLivro;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
-public class LivroService {
+public class LivroService
+		extends BaseServiceImpl<Livro, Integer> {
 
 	@Autowired
 	private LivroRepository livroRepo;
@@ -77,9 +58,11 @@ public class LivroService {
 	@Autowired
 	private ISBNService isbnService;
 
-	@Transactional
-	public ResponseEntity<?> cadastrar(LivroFORM livroForm, MultipartFile capa) {
+	public LivroService(LivroRepository livroRepository) {
+		super(livroRepository);
+	}
 
+	private void validacaoBasica(LivroFORM livroForm, MultipartFile capa) {
 		if (this.verificaLivroJaCadastrado(livroForm.titulo(), livroForm.idDono(), livroForm.idIdioma())) {
 			throw new RegistroEncontradoException("Livro já cadastrado!");
 		}
@@ -93,18 +76,21 @@ public class LivroService {
 		if (capa.isEmpty()) {
 			throw new RequisicaoInvalidaException("A capa deve ser passada como arquivo Multipart!");
 		}
+	}
+
+	@Transactional
+	public ResponseEntity<?> cadastrar(LivroFORM livroForm, MultipartFile capa) {
+
+		this.validacaoBasica(livroForm, capa);
 
 		this.validaEntidadesRelacionadas(livroForm);
 
-		List<Autor> autoresSalvos = new ArrayList<Autor>();
-		List<Categoria> categoriasSalvos = new ArrayList<Categoria>();
-
-		autoresSalvos = this.verificaAutoresCadastradosPorId(livroForm.autores());
-		categoriasSalvos = this.verificaCategoriasCadastradasPorId(livroForm.categorias());
+		List<Autor> autoresSalvos = this.verificaAutoresCadastradosPorId(livroForm.autores());
+		List<Categoria> categoriasSalvos = this.verificaCategoriasCadastradasPorId(livroForm.categorias());
 
 		Livro livro = new Livro();
 
-		Editora editora = editoraRepo.findById(livroForm.idEditora()).get();
+		Editora editora = this.editoraRepo.findById(livroForm.idEditora()).get();
 		livro.setEditora(editora);
 
 		livro.setTitulo(livroForm.titulo());

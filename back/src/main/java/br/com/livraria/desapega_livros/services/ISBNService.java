@@ -1,5 +1,15 @@
 package br.com.livraria.desapega_livros.services;
 
+import br.com.livraria.desapega_livros.controllers.dto.ISBNResponseDTO;
+import br.com.livraria.desapega_livros.entities.Autor;
+import br.com.livraria.desapega_livros.entities.Categoria;
+import br.com.livraria.desapega_livros.entities.Editora;
+import br.com.livraria.desapega_livros.entities.Livro;
+import br.com.livraria.desapega_livros.infra.exception.DadoInvalidoException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -8,40 +18,30 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import br.com.livraria.desapega_livros.controllers.dto.ISBNResponseDTO;
-import br.com.livraria.desapega_livros.infra.exception.DadoInvalidoException;
-import br.com.livraria.desapega_livros.repositories.AutorRepository;
-import br.com.livraria.desapega_livros.repositories.CategoriaRepository;
-import br.com.livraria.desapega_livros.repositories.EditoraRepository;
-import br.com.livraria.desapega_livros.entities.Autor;
-import br.com.livraria.desapega_livros.entities.Categoria;
-import br.com.livraria.desapega_livros.entities.Editora;
-import br.com.livraria.desapega_livros.entities.Livro;
-
 @Service
 public class ISBNService {
 
-	@Autowired
-	EditoraRepository editoraRepo;
+	private EditoraService editoraService;
 
-	@Autowired
-	AutorRepository autorRepo;
+	private AutorService autorService;
 
-	@Autowired
-	CategoriaRepository categoriaRepo;
+	private CategoriaService categoriaService;
 
 	private final HttpClient httpClient;
 	private final ObjectMapper objectMapper;
 
-	public ISBNService(HttpClient httpClient, ObjectMapper objectMapper) {
+	public ISBNService(
+			HttpClient httpClient,
+			ObjectMapper objectMapper,
+			EditoraService editoraService,
+			AutorService autorService,
+			CategoriaService categoriaService) {
+
 		this.httpClient = httpClient;
 		this.objectMapper = objectMapper;
+		this.editoraService = editoraService;
+		this.autorService = autorService;
+		this.categoriaService = categoriaService;
 	}
 
 	public ISBNResponseDTO buscaISBN(String isbn) {
@@ -108,10 +108,10 @@ public class ISBNService {
 		livro.setQtdPaginas(livroISBN.qtdPaginas());
 		livro.setIsbn(livroISBN.isbn());
 
-		Editora editora = editoraRepo.findByNome(livroISBN.editora());
+		Editora editora = this.editoraService.findByNome(livroISBN.editora());
 
 		if (editora == null) {
-			editora = editoraRepo.save(new Editora(livroISBN.editora()));
+			editora = this.editoraService.simpleSave(new Editora(livroISBN.editora()));
 		}
 
 		livro.setEditora(editora);
@@ -133,10 +133,10 @@ public class ISBNService {
 
 		nomesCategorias.forEach(nome -> {
 
-			var categoria = categoriaRepo.findByNome(nome);
+			var categoria = this.categoriaService.findByNome(nome);
 
 			if (categoria == null) {
-				categoria = categoriaRepo.save(new Categoria(nome));
+				categoria = this.categoriaService.simpleSave(new Categoria(nome));
 			}
 
 			categoriasSalvas.add(categoria);
@@ -151,10 +151,10 @@ public class ISBNService {
 		List<Autor> autoresSalvos = new ArrayList<Autor>();
 
 		nomesAutores.forEach(nome -> {
-			var autor = autorRepo.findByNome(nome);
+			var autor = this.autorService.findByNome(nome);
 
 			if (autor == null) {
-				autor = autorRepo.save(new Autor(nome));
+				autor = this.autorService.simpleSave(new Autor(nome));
 			}
 
 			autoresSalvos.add(autor);

@@ -21,8 +21,7 @@ import br.com.livraria.desapega_livros.entities.Estado;
 
 @Service
 public class EstadoService
-		extends BaseServiceImpl<Estado, Integer>
-		implements BaseService<Estado, Integer> {
+		extends BaseServiceImpl<Estado, Integer> {
 
 	private EstadoRepository repository;
 
@@ -37,7 +36,7 @@ public class EstadoService
 			throw new RegistroEncontradoException("Estado já cadastrado no banco de dados");
 		}
 
-		Estado estadoSalvo = repository.save(new Estado(estadoForm));
+		Estado estadoSalvo = this.repository.save(new Estado(estadoForm));
 
 		var id = estadoSalvo.getId();
 
@@ -48,27 +47,10 @@ public class EstadoService
 	}
 
 	private boolean estadoJaCadastrado(String estado) {
-		return repository.existsByNomeIgnoreCase(estado);
+		return this.repository.existsByNomeIgnoreCase(estado);
 	}
 
-	@Transactional
-	public ResponseEntity<Page<Estado>> listar(Pageable pagina) {
-		Page<Estado> pageEstados = repository.findAll(pagina);
-
-		if (pageEstados.getTotalElements() == 0) {
-			throw new NenhumRegistroEncontradoException("Nenhum Estado foi encontrado no banco de dados");
-		}
-
-		return ResponseEntity.ok(pageEstados);
-	}
-
-	@Transactional
-	public ResponseEntity<?> excluir(Integer id) {
-		if (!repository.existsById(id)) {
-			throw new RegistroNaoExisteException("Não existe Estado para o ID: " + id);
-		}
-		repository.deleteById(id);
-
-		return ResponseEntity.ok("Estado de id " + id + " excluído com sucesso");
+	public Estado findByNome(String nome) {
+		return this.repository.findByNome(nome);
 	}
 }

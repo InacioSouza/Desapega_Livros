@@ -6,7 +6,6 @@ import br.com.livraria.desapega_livros.entities.Categoria;
 import br.com.livraria.desapega_livros.infra.exception.RegistroEncontradoException;
 import br.com.livraria.desapega_livros.infra.exception.RegistroNaoExisteException;
 import br.com.livraria.desapega_livros.repositories.CategoriaRepository;
-import br.com.livraria.desapega_livros.services.bases.BaseService;
 import br.com.livraria.desapega_livros.services.bases.BaseServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -15,8 +14,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 public class CategoriaService
-		extends BaseServiceImpl<Categoria, Integer>
-		implements BaseService<Categoria, Integer>{
+		extends BaseServiceImpl<Categoria, Integer> {
 
 	private CategoriaRepository categoriaRepo;
 
@@ -27,12 +25,12 @@ public class CategoriaService
 
 	@Transactional
 	public ResponseEntity<?> cadastrar(CategoriaFORM categoriaForm) {
-		if (categoriaRepo.existsByNome(categoriaForm.nome())) {
+		if (this.categoriaRepo.existsByNome(categoriaForm.nome())) {
 			throw new RegistroEncontradoException(
 					"A categoria " + categoriaForm.nome() + " já foi cadastrada no banco");
 		}
 
-		Categoria categoria = categoriaRepo.save(new Categoria(categoriaForm));
+		Categoria categoria = this.categoriaRepo.save(new Categoria(categoriaForm));
 		CategoriaDTO categoriaSalvaDTO = new CategoriaDTO(categoria);
 
 		UriComponentsBuilder uribuilder = UriComponentsBuilder.newInstance();
@@ -44,11 +42,12 @@ public class CategoriaService
 	@Transactional
 	public ResponseEntity<?> atualizar(Integer id, CategoriaFORM categoriaForm) {
 
-		if (!categoriaRepo.existsById(id)) {
-			throw new RegistroNaoExisteException("Não há nenhuma categoria cadastrada para o id " + id);
+		if (!this.categoriaRepo.existsById(id)) {
+			throw new RegistroNaoExisteException(
+					"Não há nenhuma categoria cadastrada para o id " + id);
 		}
 
-		var categoria = categoriaRepo.findById(id).get();
+		var categoria = this.categoriaRepo.findById(id).get();
 		categoria.setNome(categoriaForm.nome());
 
 		CategoriaDTO categoriaAtualizadaDTO = new CategoriaDTO(categoria);
@@ -56,15 +55,7 @@ public class CategoriaService
 		return ResponseEntity.ok(categoriaAtualizadaDTO);
 	}
 
-	@Transactional
-	public ResponseEntity<?> excluir(Integer id) {
-
-		if (!categoriaRepo.existsById(id)) {
-			throw new RegistroNaoExisteException("Não há nenhuma categoria cadastrada para o id " + id);
-		}
-
-		categoriaRepo.deleteById(id);
-
-		return ResponseEntity.ok("Categoria deletada com sucesso!");
+	public Categoria findByNome(String nome) {
+		return this.categoriaRepo.findByNome(nome);
 	}
 }

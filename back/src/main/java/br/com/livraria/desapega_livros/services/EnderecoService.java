@@ -6,41 +6,45 @@ import br.com.livraria.desapega_livros.controllers.form.EnderecoFORM;
 import br.com.livraria.desapega_livros.entities.Cidade;
 import br.com.livraria.desapega_livros.entities.Endereco;
 import br.com.livraria.desapega_livros.entities.Estado;
+import br.com.livraria.desapega_livros.entities.Usuario;
 import br.com.livraria.desapega_livros.infra.exception.RegistroEncontradoException;
 import br.com.livraria.desapega_livros.infra.exception.RegistroNaoExisteException;
-import br.com.livraria.desapega_livros.repositories.CidadeRepository;
 import br.com.livraria.desapega_livros.repositories.EnderecoRepository;
-import br.com.livraria.desapega_livros.repositories.EstadoRepository;
 import br.com.livraria.desapega_livros.repositories.UsuarioRepository;
-import br.com.livraria.desapega_livros.services.bases.BaseService;
 import br.com.livraria.desapega_livros.services.bases.BaseServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 public class EnderecoService
-		extends BaseServiceImpl<Endereco, Integer>
-		implements BaseService <Endereco, Integer> {
+		extends BaseServiceImpl<Endereco, Integer> {
 
 	private EnderecoRepository enderecoRepo;
 
-	@Autowired
-	private EstadoRepository estadoRepo;
+	private EstadoService estadoService;
 
-	@Autowired
-	private CidadeRepository cidadeRepo;
+	private CidadeService cidadeService;
 
-	@Autowired
 	private ValidaCepService validaCEP;
 
-	@Autowired
-	private UsuarioRepository usuarioRepo;
+	private UsuarioRepository usuarioRepository;
 
-	public EnderecoService(EnderecoRepository enderecoRepo) {
+	public EnderecoService(
+			EnderecoRepository enderecoRepo,
+			EstadoService estadoService,
+	 		CidadeService cidadeService,
+	 		ValidaCepService validaCEP,
+	 		UsuarioRepository usuarioService) {
+
 		super(enderecoRepo);
 		this.enderecoRepo = enderecoRepo;
+		this.estadoService = estadoService;
+		this.cidadeService = cidadeService;
+		this.validaCEP = validaCEP;
+		this.usuarioRepository = usuarioService;
 	}
 
 	@Transactional
@@ -59,18 +63,18 @@ public class EnderecoService
 		endereco.setComplemento(enderecoForm.complemento());
 
 		String nomeCidadeViaAPI = dadosEndereco.localidade().trim();
-		Cidade cidade = cidadeRepo.findByNome(nomeCidadeViaAPI);
+		Cidade cidade = this.cidadeService.findByNome(nomeCidadeViaAPI);
 
 		if (cidade == null) {
 			String nomeEstadoViaAPI = dadosEndereco.estado().trim();
-			Estado estado = this.estadoRepo.findByNome(nomeEstadoViaAPI);
+			Estado estado = this.estadoService.findByNome(nomeEstadoViaAPI);
 
 			if (estado == null ) {
-				estado = estadoRepo.save(
+				estado = this.estadoService.simpleSave(
 						new Estado(nomeEstadoViaAPI, dadosEndereco.uf().trim() )
 				);
 			}
-			cidade = this.cidadeRepo.save(new Cidade(nomeCidadeViaAPI, estado));
+			cidade = this.cidadeService.simpleSave(new Cidade(nomeCidadeViaAPI, estado));
 		}
 		endereco.setCidade(cidade);
 
@@ -78,7 +82,7 @@ public class EnderecoService
 	}
 
 	private boolean enderecoJaCadastrado(EnderecoFORM enderecoF) {
-		Integer idEndereco = enderecoRepo
+		Integer idEndereco = this.enderecoRepo
 				.existsByCepAndNumero(enderecoF.cep(), enderecoF.numero());
 		return idEndereco != null;
 	}
@@ -87,7 +91,8 @@ public class EnderecoService
 	public ResponseEntity<?> atualizar(Integer id, EnderecoFORM enderecoForm) {
 
 		if (!enderecoRepo.existsById(id)) {
-			throw new RegistroNaoExisteException("Não foi encontrado endereço cadastrado no banco para o id " + id);
+			throw new RegistroNaoExisteException(
+					"Não foi encontrado endereço cadastrado no banco para o id " + id);
 		}
 
 		Endereco endereco = enderecoRepo.findById(id).get();
@@ -98,24 +103,25 @@ public class EnderecoService
 		endereco.setLogradouro(dadosPorCep.logradouro());
 		endereco.setBairro(dadosPorCep.bairro());
 
-		Cidade cidade = cidadeRepo.findByNome(dadosPorCep.localidade());
+		Cidade cidade = this.cidadeService.findByNome(dadosPorCep.localidade());
 		Estado estado;
 
 		if (cidade == null) {
 			cidade = new Cidade();
 			cidade.setNome(dadosPorCep.localidade());
 
-			estado = estadoRepo.findByNome(dadosPorCep.estado());
+			estado = this.estadoService.findByNome(dadosPorCep.estado());
 
 			if (estado == null) {
+				estado = new Estado();
 				estado.setNome(dadosPorCep.estado());
 				estado.setUf(dadosPorCep.uf());
 
-				estadoRepo.save(estado);
+				this.estadoService.simpleSave(estado);
 			}
 
 			cidade.setEstado(estado);
-			cidade = cidadeRepo.save(cidade);
+			cidade = this.cidadeService.simpleSave(cidade);
 		}
 		endereco.setCidade(cidade);
 
@@ -132,14 +138,17 @@ public class EnderecoService
 
 	@Transactional
 	public ResponseEntity<?> enderecoPorUsuario(Integer id) {
-		if (!usuarioRepo.existsById(id)) {
-			throw new RegistroNaoExisteException("Nenhum usuário encontrado para o id : " + id);
+		Optional<Usuario> usuarioOptional = this.usuarioRepository.findById(id);
+		if (usuarioOptional.isEmpty()) {
+			throw new RegistroNaoExisteException(
+					"Nenhum usuário encontrado para o id : " + id);
 		}
 
-		Endereco endereco = usuarioRepo.getEnderecoUsuario(id);
+		Endereco endereco = usuarioOptional.get().getEndereco();
 
 		if (endereco == null) {
-			throw new RegistroNaoExisteException("O Usuário de id " + id + " não possui endereço cadastrado");
+			throw new RegistroNaoExisteException(
+					"O Usuário de id " + id + " não possui endereço cadastrado");
 		}
 
 		EnderecoDTO enderecoDTO = new EnderecoDTO(endereco);

@@ -5,7 +5,6 @@ import br.com.livraria.desapega_livros.controllers.form.IdiomaFORM;
 import br.com.livraria.desapega_livros.entities.Idioma;
 import br.com.livraria.desapega_livros.infra.exception.RegistroNaoExisteException;
 import br.com.livraria.desapega_livros.repositories.IdiomaRepository;
-import br.com.livraria.desapega_livros.services.bases.BaseService;
 import br.com.livraria.desapega_livros.services.bases.BaseServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -14,8 +13,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 public class IdiomaService
-		extends BaseServiceImpl<Idioma, Integer>
-		implements BaseService<Idioma, Integer> {
+		extends BaseServiceImpl<Idioma, Integer> {
 
 	private IdiomaRepository idiomaRepo;
 

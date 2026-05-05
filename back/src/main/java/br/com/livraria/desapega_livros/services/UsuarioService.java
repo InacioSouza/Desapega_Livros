@@ -5,38 +5,41 @@ import br.com.livraria.desapega_livros.entities.Endereco;
 import br.com.livraria.desapega_livros.entities.Usuario;
 import br.com.livraria.desapega_livros.entities.enuns.StatusUsuario;
 import br.com.livraria.desapega_livros.infra.exception.RegistroNaoExisteException;
-import br.com.livraria.desapega_livros.repositories.EnderecoRepository;
 import br.com.livraria.desapega_livros.repositories.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import br.com.livraria.desapega_livros.services.bases.BaseServiceImpl;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class UsuarioService {
+public class UsuarioService extends BaseServiceImpl<Usuario, Integer> {
 
-	@Autowired
-	UsuarioRepository usuarioRepo;
+	private UsuarioRepository usuarioRepo;
 
-	@Autowired
-	private EnderecoRepository enderecoRepo;
-
-	@Autowired
 	private EnderecoService enderecoService;
 
-	@Autowired
 	private PasswordEncoder passwordEncoder;
+
+	public UsuarioService(
+			UsuarioRepository usuarioRepo,
+			EnderecoService enderecoService,
+			PasswordEncoder passwordEncoder
+		) {
+		super(usuarioRepo);
+		this.enderecoService = enderecoService;
+		this.passwordEncoder = passwordEncoder;
+	}
 
 	private Endereco obtemEnderecoUsuario(UsuarioFORM usuarioForm) {
 
 		if (usuarioForm.idEndereco() != null) {
-			var optionalEndereco = enderecoRepo.findById(usuarioForm.idEndereco());
+			var endereco = enderecoService.findById(usuarioForm.idEndereco());
 
-			if (optionalEndereco.isEmpty()) {
+			if (endereco == null) {
 				throw new RegistroNaoExisteException(
 						"Não existe endereço cadastrado para o id : " + usuarioForm.idEndereco());
 			}
-			return optionalEndereco.get();
+			return endereco;
 		}
 
 		boolean naoInformouDadosEndereco =  usuarioForm.endereco() == null ||

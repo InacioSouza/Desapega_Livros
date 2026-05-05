@@ -21,8 +21,7 @@ import br.com.livraria.desapega_livros.entities.Autor;
 
 @Service
 public class AutorService
-		extends BaseServiceImpl<Autor, Integer>
-		implements  BaseService<Autor, Integer>{
+		extends BaseServiceImpl<Autor, Integer> {
 
 	private AutorRepository autorRepo;
 
@@ -59,6 +58,10 @@ public class AutorService
 		autor.atualizarDados(autorForm);
 
 		return ResponseEntity.ok(new AutorDTO(autor));
+	}
+
+	public Autor findByNome(String nome) {
+		return this.autorRepo.findByNome(nome);
 	}
 
 }
