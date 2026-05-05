@@ -5,12 +5,15 @@ import br.com.livraria.desapega_livros.controllers.form.LivroFORM;
 import br.com.livraria.desapega_livros.controllers.form.LivroIsbnFORM;
 import br.com.livraria.desapega_livros.entities.*;
 import br.com.livraria.desapega_livros.entities.enuns.StatusLivro;
-import br.com.livraria.desapega_livros.infra.exception.*;
-import br.com.livraria.desapega_livros.repositories.*;
+import br.com.livraria.desapega_livros.infra.exception.DadoInvalidoException;
+import br.com.livraria.desapega_livros.infra.exception.RegistroEncontradoException;
+import br.com.livraria.desapega_livros.infra.exception.RegistroNaoExisteException;
+import br.com.livraria.desapega_livros.infra.exception.RequisicaoInvalidaException;
+import br.com.livraria.desapega_livros.repositories.CidadeRepository;
+import br.com.livraria.desapega_livros.repositories.LivroAutorRepository;
+import br.com.livraria.desapega_livros.repositories.LivroCategoriaRepository;
+import br.com.livraria.desapega_livros.repositories.LivroRepository;
 import br.com.livraria.desapega_livros.services.bases.BaseServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,44 +25,54 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 public class LivroService
 		extends BaseServiceImpl<Livro, Integer> {
 
-	@Autowired
 	private LivroRepository livroRepo;
 
-	@Autowired
-	private EditoraRepository editoraRepo;
+	private EditoraService editoraService;
 
-	@Autowired
-	private UsuarioRepository usuarioRepo;
+	private UsuarioService usuarioService;
 
-	@Autowired
-	private IdiomaRepository idiomaRepo;
+	private IdiomaService idiomaService;
 
-	@Autowired
 	private CidadeRepository cidadeRepo;
 
-	@Autowired
-	private AutorRepository autorRepo;
+	private AutorService autorService;
 
-	@Autowired
 	private LivroAutorRepository livroAutorRepo;
 
-	@Autowired
-	CategoriaRepository categoriaRepo;
+	private CategoriaService categoriaService;
 
-	@Autowired
-	LivroCategoriaRepository livroCatRepo;
+	private LivroCategoriaRepository livroCatRepo;
 
-	@Autowired
 	private ISBNService isbnService;
 
-	public LivroService(LivroRepository livroRepository) {
+	public LivroService(
+			LivroRepository livroRepository,
+			EditoraService editoraService,
+			UsuarioService usuarioService,
+			IdiomaService idiomaService,
+			CidadeRepository cidadeRepo,
+			AutorService autorService,
+			LivroAutorRepository livroAutorRepo,
+			CategoriaService categoriaService,
+			LivroCategoriaRepository livroCatRepo,
+			ISBNService isbnService
+	) {
 		super(livroRepository);
+		this.livroRepo = livroRepository;
+		this.editoraService = editoraService;
+		this.usuarioService = usuarioService;
+		this.idiomaService = idiomaService;
+		this.cidadeRepo = cidadeRepo;
+		this.autorService = autorService;
+		this.livroAutorRepo = livroAutorRepo;
+		this.categoriaService = categoriaService;
+		this.livroCatRepo = livroCatRepo;
+		this.isbnService = isbnService;
 	}
 
 	private void validacaoBasica(LivroFORM livroForm, MultipartFile capa) {
@@ -90,7 +103,7 @@ public class LivroService
 
 		Livro livro = new Livro();
 
-		Editora editora = this.editoraRepo.findById(livroForm.idEditora()).get();
+		Editora editora = this.editoraService.findById(livroForm.idEditora());
 		livro.setEditora(editora);
 
 		livro.setTitulo(livroForm.titulo());
@@ -99,13 +112,13 @@ public class LivroService
 		livro.setAnoPublicacao(livroForm.anoPublicacao());
 		livro.setQtdPaginas(livroForm.qtdPaginas());
 		livro.setOpniaoDoador(livroForm.opniaoDoador());
-		livro.setIsbn(isbnService.formataISBN(livroForm.isbn()));
+		livro.setIsbn(this.isbnService.formataISBN(livroForm.isbn()));
 
 		Usuario dono;
-		dono = usuarioRepo.findById(livroForm.idDono()).get();
+		dono = this.usuarioService.findById(livroForm.idDono());
 
 		Idioma idioma;
-		idioma = idiomaRepo.findById(livroForm.idIdioma()).get();
+		idioma = this.idiomaService.findById(livroForm.idIdioma());
 
 		livro.setDono(dono);
 		livro.setIdioma(idioma);
@@ -115,7 +128,8 @@ public class LivroService
 
 		} catch (IOException e) {
 
-			throw new RuntimeException("Erro interno ao processar imagem!");
+			throw new RuntimeException(
+					"Erro interno ao processar imagem!");
 		}
 
 		Cidade cidade;
@@ -124,13 +138,13 @@ public class LivroService
 			cidade = dono.getEndereco().getCidade();
 
 		} else {
-			cidade = cidadeRepo.findById(livroForm.idCidade()).get();
+			cidade = this.cidadeRepo.findById(livroForm.idCidade()).get();
 		}
 
 		livro.setCidade(cidade);
 		livro.setStatus(StatusLivro.DISPONIVEL.toString());
 
-		Livro livroSalvo = livroRepo.save(livro);
+		Livro livroSalvo = this.livroRepo.save(livro);
 		livroSalvo.setCategorias(categoriasSalvos);
 		livroSalvo.setAutores(autoresSalvos);
 
@@ -148,16 +162,19 @@ public class LivroService
 
 	private void validaEntidadesRelacionadas(LivroFORM livroForm) {
 
-		if (!usuarioRepo.existsById(livroForm.idDono())) {
-			throw new RegistroNaoExisteException("Não há usuário cadastrado para o id :" + livroForm.idDono());
+		if (!this.usuarioService.existsById(livroForm.idDono())) {
+			throw new RegistroNaoExisteException(
+					"Não há usuário cadastrado para o id :" + livroForm.idDono());
 		}
 
-		if (!idiomaRepo.existsById(livroForm.idIdioma())) {
-			throw new RegistroNaoExisteException("Não há idioma cadastrado para o id : " + livroForm.idIdioma());
+		if (!this.idiomaService.existsById(livroForm.idIdioma())) {
+			throw new RegistroNaoExisteException(
+					"Não há idioma cadastrado para o id : " + livroForm.idIdioma());
 		}
 
-		if (!editoraRepo.existsById(livroForm.idEditora())) {
-			throw new RegistroNaoExisteException("Não há editora cadastrada para o id : " + livroForm.idEditora());
+		if (!this.editoraService.existsById(livroForm.idEditora())) {
+			throw new RegistroNaoExisteException(
+					"Não há editora cadastrada para o id : " + livroForm.idEditora());
 		}
 	}
 
@@ -166,11 +183,12 @@ public class LivroService
 		List<Autor> autores = new ArrayList<>();
 
 		for (int i = 0; i < idAutores.size(); i++) {
-			if (!autorRepo.existsById(idAutores.get(i))) {
-				throw new RegistroNaoExisteException("Não há autor cadastrado para o id : " + idAutores.get(i));
+			if (!this.autorService.existsById(idAutores.get(i))) {
+				throw new RegistroNaoExisteException(
+						"Não há autor cadastrado para o id : " + idAutores.get(i));
 			}
 
-			autores.add(autorRepo.findById(idAutores.get(i)).get());
+			autores.add(this.autorService.findById(idAutores.get(i)));
 		}
 		return autores;
 	}
@@ -203,10 +221,11 @@ public class LivroService
 		List<Categoria> categorias = new ArrayList<>();
 
 		for (int i = 0; i < idCategorias.size(); i++) {
-			if (!categoriaRepo.existsById(idCategorias.get(i))) {
-				throw new RegistroNaoExisteException("Não há categoria cadastrada para o id : " + idCategorias.get(i));
+			if (!this.categoriaService.existsById(idCategorias.get(i))) {
+				throw new RegistroNaoExisteException(
+						"Não há categoria cadastrada para o id : " + idCategorias.get(i));
 			}
-			categorias.add(categoriaRepo.findById(idCategorias.get(i)).get());
+			categorias.add(this.categoriaService.findById(idCategorias.get(i)));
 		}
 
 		return categorias;
@@ -228,7 +247,7 @@ public class LivroService
 			});
 
 		} catch (Exception ex) {
-			categoriaRepo.deleteById(livro.getId());
+			this.categoriaService.simpleDeleteById(livro.getId());
 		}
 
 	}
@@ -236,22 +255,24 @@ public class LivroService
 	@Transactional
 	public ResponseEntity<?> cadastraPorISBN(LivroIsbnFORM livroForm, MultipartFile capa) {
 
-		if (!idiomaRepo.existsById(livroForm.idIdioma())) {
-			throw new RequisicaoInvalidaException("Não existe idioma cadastrad para o id:" + livroForm.idIdioma());
+		if (!idiomaService.existsById(livroForm.idIdioma())) {
+			throw new RequisicaoInvalidaException(
+					"Não existe idioma cadastrad para o id:" + livroForm.idIdioma());
 		}
 
-		if (!usuarioRepo.existsById(livroForm.idDono())) {
-			throw new RequisicaoInvalidaException("Não existe usuario cadastrado para o id: " + livroForm.idDono());
+		if (!this.usuarioService.existsById(livroForm.idDono())) {
+			throw new RequisicaoInvalidaException(
+					"Não existe usuario cadastrado para o id: " + livroForm.idDono());
 		}
 
-		var dadosLivro = isbnService.buscaISBN(livroForm.isbn());
+		var dadosLivro = this.isbnService.buscaISBN(livroForm.isbn());
 
 		if (this.verificaLivroJaCadastrado(dadosLivro.titulo(), livroForm.idDono(), livroForm.idIdioma())) {
 			throw new RegistroEncontradoException("Livro já cadastrado!");
 		}
 
-		Usuario dono = usuarioRepo.findById(livroForm.idDono()).get();
-		Idioma idioma = idiomaRepo.findById(livroForm.idIdioma()).get();
+		Usuario dono = this.usuarioService.findById(livroForm.idDono());
+		Idioma idioma = this.idiomaService.findById(livroForm.idIdioma());
 
 		Livro livro = new Livro(dadosLivro);
 
@@ -263,7 +284,7 @@ public class LivroService
 		if (livroForm.idCidade() == null) {
 			cidade = dono.getEndereco().getCidade();
 		} else {
-			cidade = cidadeRepo.findById(livroForm.idCidade()).get();
+			cidade = this.cidadeRepo.findById(livroForm.idCidade()).get();
 		}
 
 		livro.setCidade(cidade);
@@ -276,10 +297,11 @@ public class LivroService
 			livro.setCapa(capa.getBytes());
 
 		} catch (IOException e) {
-			throw new RuntimeException("Erro interno ao processar imagem!");
+			throw new RuntimeException(
+					"Erro interno ao processar imagem!");
 		}
 
-		Livro livroSalvo = livroRepo.save(livro);
+		Livro livroSalvo = this.livroRepo.save(livro);
 
 		List<Autor> autores = this.verificaAutoresCadastradosPorListNome(dadosLivro.nomesAutores());
 		List<Categoria> categorias = this.verificaCategoriasCadastradasPorListNomes(dadosLivro.nomesCategorias());
@@ -303,10 +325,10 @@ public class LivroService
 	}
 
 	private Editora verificaEditoraCadastradaPorNome(String nome) {
-		Editora ed = editoraRepo.findByNome(nome);
+		Editora ed = this.editoraService.findByNome(nome);
 
 		if (ed == null) {
-			ed = editoraRepo.save(new Editora(null, nome));
+			ed = this.editoraService.simpleSave(new Editora(null, nome));
 		}
 		return ed;
 
@@ -317,10 +339,10 @@ public class LivroService
 		List<Autor> autores = new ArrayList<Autor>();
 
 		nomesAutores.forEach(nome -> {
-			Autor autor = autorRepo.findByNome(nome);
+			Autor autor = this.autorService.findByNome(nome);
 
 			if (autor == null) {
-				autor = autorRepo.save(new Autor(null, nome));
+				autor = this.autorService.simpleSave(new Autor(null, nome));
 			}
 			autores.add(autor);
 		});
@@ -332,10 +354,10 @@ public class LivroService
 		List<Categoria> categorias = new ArrayList<Categoria>();
 
 		nomesCategorias.forEach(nome -> {
-			Categoria categoria = categoriaRepo.findByNome(nome);
+			Categoria categoria = this.categoriaService.findByNome(nome);
 
 			if (categoria == null) {
-				categoria = categoriaRepo.save(new Categoria(null, nome));
+				categoria = this.categoriaService.simpleSave(new Categoria(null, nome));
 			}
 
 			categorias.add(categoria);
@@ -343,23 +365,11 @@ public class LivroService
 		return categorias;
 	}
 
-	public ResponseEntity<?> listar(Pageable pagina) {
-
-		Page<Livro> livros = livroRepo.findAll(pagina);
-
-		if (livros.isEmpty()) {
-			throw new NenhumRegistroEncontradoException("Não há livros cadastrados no banco!");
-
-		}
-		List<LivroDTO> livrosDTO = livros.stream().map(LivroDTO::new).collect(Collectors.toList());
-
-		return ResponseEntity.ok(livrosDTO);
-	}
-
 	@Transactional
 	public ResponseEntity<?> remover(Integer id) {
 		if (!livroRepo.existsById(id)) {
-			throw new RegistroNaoExisteException("Não existe livro cadastrado para o id: " + id);
+			throw new RegistroNaoExisteException(
+					"Não existe livro cadastrado para o id: " + id);
 		}
 
 		Livro livro = livroRepo.findById(id).get();
@@ -372,20 +382,22 @@ public class LivroService
 	public ResponseEntity<?> atualizar(Integer id, LivroFORM livroForm, MultipartFile capa) {
 
 		if (!livroRepo.existsById(id)) {
-			throw new RequisicaoInvalidaException("Não existe livro cadastrado para o id:" + id);
+			throw new RequisicaoInvalidaException(
+					"Não existe livro cadastrado para o id:" + id);
 		}
 
 		if (capa.isEmpty()) {
-			throw new RequisicaoInvalidaException("A capa deve ser passada como arquivo Multipart!");
+			throw new RequisicaoInvalidaException(
+					"A capa deve ser passada como arquivo Multipart!");
 		}
 
 		this.validaEntidadesRelacionadas(livroForm);
 
-		Livro livro = livroRepo.findById(id).get();
+		Livro livro = this.livroRepo.findById(id).get();
 
-		Usuario dono = usuarioRepo.findById(livroForm.idDono()).get();
-		Idioma idioma = idiomaRepo.findById(livroForm.idIdioma()).get();
-		Editora editora = editoraRepo.findById(livroForm.idEditora()).get();
+		Usuario dono = this.usuarioService.findById(livroForm.idDono());
+		Idioma idioma = this.idiomaService.findById(livroForm.idIdioma());
+		Editora editora = this.editoraService.findById(livroForm.idEditora());
 
 		livro.setDono(dono);
 		livro.setIdioma(idioma);
@@ -423,8 +435,8 @@ public class LivroService
 		this.removeLivroAutorAntigo(id, livroForm.autores(), livro.getAutores());
 		this.removeLivroCategoriaAntigo(id, livroForm.categorias(), livro.getCategorias());
 
-		List<Autor> autoresLivroAtualizado = this.verificaAutoresCadastradosPorId(livroForm.autores());
-		List<Categoria> categoriaLivroAtualizado = this.verificaCategoriasCadastradasPorId(livroForm.categorias());
+		this.verificaAutoresCadastradosPorId(livroForm.autores());
+		this.verificaCategoriasCadastradasPorId(livroForm.categorias());
 
 		livro = livroRepo.save(livro);
 
@@ -433,11 +445,13 @@ public class LivroService
 		return ResponseEntity.ok(livroAtualizadoDTO);
 	}
 
-	private void removeLivroCategoriaAntigo(Integer idLivro, List<Integer> idNovascategorias,
+	private void removeLivroCategoriaAntigo(
+			Integer idLivro,
+			List<Integer> idNovascategorias,
 			List<Categoria> categoriasAntesDeAtualizar) {
 
-		List<Integer> idCategoriasAntes = categoriasAntesDeAtualizar.stream().map(categoria -> categoria.getId())
-				.collect(Collectors.toList());
+		List<Integer> idCategoriasAntes = categoriasAntesDeAtualizar
+				.stream().map(Categoria::getId).toList();
 
 		List<Integer> idCategoriasParaRemocao = new ArrayList<Integer>();
 
@@ -452,11 +466,13 @@ public class LivroService
 		});
 	}
 
-	private void removeLivroAutorAntigo(Integer idLivro, List<Integer> idNovosAutores,
-			List<Autor> autoresAntesDeAtualizar) {
+	private void removeLivroAutorAntigo(
+			Integer idLivro,
+			List<Integer> idNovosAutores,
+			List<Autor> autoresAntesDeAtualizar ) {
 
-		List<Integer> idAutoresAntes = (List<Integer>) autoresAntesDeAtualizar.stream().map(autor -> autor.getId())
-				.collect(Collectors.toList());
+		List<Integer> idAutoresAntes = autoresAntesDeAtualizar
+				.stream().map(Autor::getId).toList();
 
 		List<Integer> idAutoresParaRemocao = new ArrayList<Integer>();
 
@@ -467,7 +483,7 @@ public class LivroService
 		});
 
 		idAutoresParaRemocao.forEach(idAutor -> {
-			livroAutorRepo.removePorIdLivroEIdAutor(idLivro, idAutor);
+			this.livroAutorRepo.removePorIdLivroEIdAutor(idLivro, idAutor);
 		});
 	}
 }
